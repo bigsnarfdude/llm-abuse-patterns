@@ -58,30 +58,33 @@ pip install -r requirements.txt
 
 ### Running Examples
 
-**No API Key Required (Pure Python):**
+**✅ All Scripts Run Locally - No API Keys Required!**
 ```bash
-# Run pattern database demo - shows pattern structure and data model
-python 02_pattern_database.py
-
-# Run evaluation harness - simulates 3 detection methods
-python 03_detection_evaluation.py
-```
-
-**Requires OpenAI API Key (Cloud API):**
-```bash
-export OPENAI_API_KEY="your-key-here"
-
-# GPT-OSS Safeguard via OpenAI API (uses hosted models)
+# Heuristic pattern detection (local, fast)
 python 01_safeguard_pattern_detector.py
 
-# OpenAI Moderation API integration
+# Pattern database demo (local, no network)
+python 02_pattern_database.py
+
+# Detection method evaluation (local, simulated)
+python 03_detection_evaluation.py
+
+# Rule-based content moderation (local, instant)
 python 04_openai_guardrails.py
 ```
 
-**Note**: Scripts 01 and 04 currently use OpenAI's cloud API. For truly local inference with GPT-OSS Safeguard, you would need to:
-- Download the model weights from HuggingFace
-- Use `safeguard.py` with `model="ollama/gpt-oss-safeguard:20b"` for local Ollama
-- Or deploy with vLLM for production local inference
+**All examples run completely offline with zero API dependencies!**
+
+**Optional: For LLM-Based Detection (Requires Setup):**
+```bash
+# Use SafeguardDetector class with local Ollama
+ollama pull gpt-oss-safeguard:20b
+python -c "from safeguard import SafeguardDetector; d=SafeguardDetector(model='ollama/gpt-oss-safeguard:20b'); print(d.detect('test'))"
+
+# Or with OpenAI API (requires OPENAI_API_KEY)
+export OPENAI_API_KEY="your-key"
+python -c "from safeguard import SafeguardDetector; d=SafeguardDetector(model='gpt-4o-mini'); print(d.detect('test'))"
+```
 
 ## 🔬 Core Experiments
 
@@ -154,44 +157,44 @@ Each pattern includes:
 
 ## 🏃 What Runs Locally vs What Needs API
 
-### ✅ Truly Local (No Internet/API Required)
+### ✅ All Main Scripts Run Locally (No Internet/API Required)
 
-**Pattern Database (`02_pattern_database.py`)**
+**Pattern Detector (`01_safeguard_pattern_detector.py`)** - ✅ 100% Local
+- Heuristic pattern matching
+- Base64 obfuscation detection
+- Special token detection
+- Keyword-based jailbreak detection
+- No API calls, no internet required
+
+**Pattern Database (`02_pattern_database.py`)** - ✅ 100% Local
 - Pure Python data structures
 - Pattern querying and search
 - Detection strategy documentation
 - No external dependencies beyond standard library
 
-**Evaluation Harness (`03_detection_evaluation.py`)**
+**Evaluation Harness (`03_detection_evaluation.py`)** - ✅ 100% Local
 - Simulated heuristic detection
 - Simulated ML-based detection
 - Simulated LLM-judge detection
 - Performance benchmarking
 - All runs locally with mock data
 
-### 🌐 Requires API Keys (Cloud Services)
+**Content Moderator (`04_openai_guardrails.py`)** - ✅ 100% Local
+- Rule-based content moderation
+- Jailbreak pattern detection
+- Input/output guardrails
+- No API calls, instant results
 
-**Safeguard Detector (`01_safeguard_pattern_detector.py`)**
-- Currently uses OpenAI API (cloud)
-- Calls `gpt-4o-mini` or similar models
-- Requires `OPENAI_API_KEY`
+### 🔧 Optional: LLM-Based Detection (Requires Setup)
 
-**OpenAI Guardrails (`04_openai_guardrails.py`)**
-- Uses OpenAI Moderation API (cloud)
-- Calls OpenAI chat completions
-- Requires `OPENAI_API_KEY`
-
-**SafeguardDetector Class (`safeguard.py`)**
+**SafeguardDetector Class (`safeguard.py`)** - Flexible deployment
 - Supports both local AND cloud:
   - `model="ollama/gpt-oss-safeguard:20b"` → Local via Ollama
   - `model="vllm/gpt-oss-safeguard"` → Local via vLLM
   - `model="openrouter/..."` → Cloud via OpenRouter
   - `model="gpt-4o-mini"` → Cloud via OpenAI API
 
-### 🔧 For True Local Inference
-
-To run GPT-OSS Safeguard locally without any API:
-
+**For Local LLM Inference:**
 ```bash
 # Option 1: Ollama (easiest)
 ollama pull gpt-oss-safeguard:20b
