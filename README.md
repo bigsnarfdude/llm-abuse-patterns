@@ -32,14 +32,12 @@ This repository contains working experiments for:
 
 ```
 llm-abuse-patterns/
-├── 01_safeguard_pattern_detector.py   # GPT-OSS Safeguard detector
+├── 01_safeguard_pattern_detector.py   # Heuristic pattern detector (local)
 ├── 02_pattern_database.py             # Pattern database implementation
-├── 03_detection_evaluation.py         # Evaluation harness
-├── 04_openai_guardrails.py            # OpenAI API integration
-├── safeguard.py                       # Core SafeguardDetector class
+├── 03_detection_evaluation.py         # Evaluation harness (simulated)
+├── 04_openai_guardrails.py            # Rule-based content moderation (local)
+├── safeguard.py                       # Optional: LLM-based detector (Ollama/vLLM)
 ├── requirements.txt                    # Python dependencies
-├── START_HERE.md                       # Getting started guide
-├── INDEX.md                            # Project index
 └── README.md                           # This file
 ```
 
@@ -324,11 +322,11 @@ This is an experimental research repository. Contributions welcome:
 3. Add experiments or improve documentation
 4. Submit a pull request
 
-## 📚 Additional Documentation
+## 📚 Documentation
 
-- **START_HERE.md** - Detailed getting started guide
-- **INDEX.md** - Complete project index
+- **README.md** (this file) - Complete documentation and usage guide
 - Inline code comments - Extensive documentation in all Python files
+- Working examples - Each script includes demo/test functions
 
 ## 🔍 What Makes This Different
 
