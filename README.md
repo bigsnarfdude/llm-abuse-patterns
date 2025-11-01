@@ -1,4 +1,14 @@
 # LLM Abuse & Safety Overwatch
+Problem Statement:
+- The potential harm is emerging or evolving, and policies need to adapt quickly.
+- The domain is highly nuanced and difficult for smaller classifiers to handle.
+- Developers don’t have enough samples to train a high-quality classifier for each risk on their platform.
+- Latency is less important than producing high-quality, explainable labels.
+
+
+
+
+
 Project Goal: To build and experiment with a comprehensive "overwatch" system for detecting and mitigating Large Language Model (LLM) abuse.
 
 This project moves beyond simple prompt-rejection. It focuses on holistic, real-time traffic analysis and behavioral reasoning to identify malicious intent, abusive potential, and system backdoors. The core idea is that safety requires significant compute to actively monitor and reason about all interactions, much like a security overwatch.
