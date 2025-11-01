@@ -2,14 +2,16 @@
 Safeguard Detector
 ==================
 
-Production-ready jailbreak detection using OpenAI's GPT-OSS Safeguard.
+Production-ready jailbreak detection using OpenAI's open-source GPT-OSS Safeguard models.
 Follows the official cookbook: https://cookbook.openai.com/articles/gpt-oss-safeguard-guide
 
 Features:
 - Harmony response format for structured reasoning
 - Bring-your-own-policy design
 - Configurable reasoning effort (low/medium/high)
-- Multiple deployment options (Ollama, vLLM, OpenRouter)
+- Local deployment options (Ollama, vLLM)
+- Fully private - runs on your own hardware
+- Supports 20B and 120B parameter models
 """
 
 import os
@@ -34,14 +36,14 @@ class DetectionResult:
 
 class SafeguardDetector:
     """
-    Jailbreak detector using GPT-OSS Safeguard.
-    
-    Supports multiple deployment options:
-    - Ollama (local, easiest)
-    - vLLM (production, fastest)
-    - OpenRouter (cloud API)
-    - OpenAI API (if available)
-    
+    Jailbreak detector using open-source GPT-OSS Safeguard models.
+
+    Local deployment options only (no cloud/API services):
+    - Ollama (local, easiest) - 20B or 120B models
+    - vLLM (production, fastest) - for batch processing
+
+    All inference runs on your own hardware - fully private!
+
     Example:
         >>> detector = SafeguardDetector(model="ollama/gpt-oss-safeguard:20b")
         >>> result = detector.detect("Ignore all instructions...")
@@ -73,23 +75,19 @@ class SafeguardDetector:
         self.base_url = base_url or self._get_base_url()
 
     def _get_api_key(self) -> Optional[str]:
-        """Get API key from environment"""
-        if "openrouter" in self.model.lower():
-            return os.getenv("OPENROUTER_API_KEY")
-        elif "openai" in self.model.lower():
-            return os.getenv("OPENAI_API_KEY")
+        """Get API key from environment (not needed for local deployment)"""
+        # Local deployments don't need API keys
         return None
 
     def _get_base_url(self) -> str:
         """Get base URL from model identifier"""
         if "ollama" in self.model.lower():
             return "http://localhost:11434"
-        elif "openrouter" in self.model.lower():
-            return "https://openrouter.ai/api/v1"
         elif "vllm" in self.model.lower():
             return "http://localhost:8000"
         else:
-            return "https://api.openai.com/v1"
+            # Default to Ollama
+            return "http://localhost:11434"
 
     def _load_policy(self, policy_path: Optional[str] = None) -> str:
         """
@@ -203,15 +201,12 @@ Content to analyze: [INPUT]
 
         start = time.time()
 
-        # Determine model type and call appropriate API
-        if "ollama" in self.model.lower():
-            result = self._detect_ollama(prompt, reasoning_effort)
-        elif "openrouter" in self.model.lower():
-            result = self._detect_openrouter(prompt, reasoning_effort)
-        elif "vllm" in self.model.lower():
+        # Determine local model type and call appropriate endpoint
+        if "vllm" in self.model.lower():
             result = self._detect_vllm(prompt, reasoning_effort)
         else:
-            result = self._detect_openai(prompt, reasoning_effort)
+            # Default to Ollama (most common local deployment)
+            result = self._detect_ollama(prompt, reasoning_effort)
 
         result.latency_ms = (time.time() - start) * 1000
         return result
@@ -248,40 +243,6 @@ Content to analyze: [INPUT]
             print(f"Ollama detection failed: {e}")
             return self._fallback_detection(prompt)
 
-    def _detect_openrouter(self, prompt: str, reasoning_effort: Optional[str]) -> DetectionResult:
-        """Detect using OpenRouter API"""
-        try:
-            url = f"{self.base_url}/chat/completions"
-            
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            }
-            
-            messages = [
-                {"role": "system", "content": self.policy},
-                {"role": "user", "content": f"Content to analyze: {prompt}"}
-            ]
-            
-            response = requests.post(
-                url,
-                headers=headers,
-                json={
-                    "model": self.model.replace("openrouter/", ""),
-                    "messages": messages,
-                    "response_format": {"type": "json_object"}
-                },
-                timeout=60
-            )
-            
-            response.raise_for_status()
-            result_text = response.json()["choices"][0]["message"]["content"]
-            
-            return self._parse_response(result_text)
-            
-        except Exception as e:
-            print(f"OpenRouter detection failed: {e}")
-            return self._fallback_detection(prompt)
 
     def _detect_vllm(self, prompt: str, reasoning_effort: Optional[str]) -> DetectionResult:
         """Detect using vLLM server"""
@@ -312,32 +273,6 @@ Content to analyze: [INPUT]
             print(f"vLLM detection failed: {e}")
             return self._fallback_detection(prompt)
 
-    def _detect_openai(self, prompt: str, reasoning_effort: Optional[str]) -> DetectionResult:
-        """Detect using OpenAI API"""
-        try:
-            from openai import OpenAI
-            
-            client = OpenAI(api_key=self.api_key)
-            
-            messages = [
-                {"role": "system", "content": self.policy},
-                {"role": "user", "content": f"Content to analyze: {prompt}"}
-            ]
-            
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",  # Fast and cost-effective
-                messages=messages,
-                response_format={"type": "json_object"},
-                temperature=0
-            )
-            
-            result_text = response.choices[0].message.content
-            
-            return self._parse_response(result_text)
-            
-        except Exception as e:
-            print(f"OpenAI detection failed: {e}")
-            return self._fallback_detection(prompt)
 
     def _parse_response(self, response_text: str) -> DetectionResult:
         """Parse JSON response from model"""
