@@ -1,4 +1,4 @@
-LLM Abuse & Safety Overwatch
+# LLM Abuse & Safety Overwatch
 Project Goal: To build and experiment with a comprehensive "overwatch" system for detecting and mitigating Large Language Model (LLM) abuse.
 
 This project moves beyond simple prompt-rejection. It focuses on holistic, real-time traffic analysis and behavioral reasoning to identify malicious intent, abusive potential, and system backdoors. The core idea is that safety requires significant compute to actively monitor and reason about all interactions, much like a security overwatch.
