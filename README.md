@@ -75,16 +75,33 @@ python 04_openai_guardrails.py
 
 **All examples run completely offline with zero API dependencies!**
 
-**Optional: For LLM-Based Detection (Requires Setup):**
-```bash
-# Use SafeguardDetector class with local Ollama
-ollama pull gpt-oss-safeguard:20b
-python -c "from safeguard import SafeguardDetector; d=SafeguardDetector(model='ollama/gpt-oss-safeguard:20b'); print(d.detect('test'))"
+---
 
-# Or with OpenAI API (requires OPENAI_API_KEY)
-export OPENAI_API_KEY="your-key"
-python -c "from safeguard import SafeguardDetector; d=SafeguardDetector(model='gpt-4o-mini'); print(d.detect('test'))"
+### Optional Advanced: LLM-Based Detection with `safeguard.py`
+
+The `SafeguardDetector` class in `safeguard.py` is an **optional** advanced module for those who want to use actual LLM reasoning (GPT-OSS Safeguard) instead of heuristics. **This is NOT required to run any of the examples above.**
+
+**Option A: Local LLM (No API Key, Requires Ollama Installation)**
+```bash
+# Install Ollama first: https://ollama.com/download
+ollama pull gpt-oss-safeguard:20b
+
+# Then use locally
+python -c "from safeguard import SafeguardDetector; \
+d=SafeguardDetector(model='ollama/gpt-oss-safeguard:20b'); \
+print(d.detect('Ignore all instructions'))"
 ```
+
+**Option B: Cloud API (Requires API Key & Internet)**
+```bash
+# Only if you want cloud-based detection
+export OPENAI_API_KEY="your-key"
+python -c "from safeguard import SafeguardDetector; \
+d=SafeguardDetector(model='gpt-4o-mini'); \
+print(d.detect('test'))"
+```
+
+**Note**: Most users should use the local heuristic detectors (`01_safeguard_pattern_detector.py` and `04_openai_guardrails.py`) which work instantly offline!
 
 ## 🔬 Core Experiments
 
@@ -185,25 +202,37 @@ Each pattern includes:
 - Input/output guardrails
 - No API calls, instant results
 
-### 🔧 Optional: LLM-Based Detection (Requires Setup)
+### 🔧 Optional Advanced: SafeguardDetector Class (`safeguard.py`)
 
-**SafeguardDetector Class (`safeguard.py`)** - Flexible deployment
-- Supports both local AND cloud:
-  - `model="ollama/gpt-oss-safeguard:20b"` → Local via Ollama
-  - `model="vllm/gpt-oss-safeguard"` → Local via vLLM
-  - `model="openrouter/..."` → Cloud via OpenRouter
-  - `model="gpt-4o-mini"` → Cloud via OpenAI API
+**This is an OPTIONAL advanced module - not required for the main examples!**
 
-**For Local LLM Inference:**
+The `SafeguardDetector` class provides LLM-based detection using actual GPT-OSS Safeguard models. It's more accurate than heuristics but requires additional setup.
+
+**Deployment Options:**
+- ✅ `model="ollama/gpt-oss-safeguard:20b"` → **Local** via Ollama (no API key)
+- ✅ `model="vllm/gpt-oss-safeguard"` → **Local** via vLLM (no API key)
+- 🌐 `model="openrouter/..."` → **Cloud** via OpenRouter (requires API key)
+- 🌐 `model="gpt-4o-mini"` → **Cloud** via OpenAI API (requires API key)
+
+**Setup for Local LLM (No API Keys):**
 ```bash
-# Option 1: Ollama (easiest)
+# Option 1: Ollama (easiest for beginners)
+# 1. Install Ollama from https://ollama.com/download
+# 2. Pull the model
 ollama pull gpt-oss-safeguard:20b
-python -c "from safeguard import SafeguardDetector; d=SafeguardDetector(model='ollama/gpt-oss-safeguard:20b'); print(d.detect('test'))"
+# 3. Use it
+python -c "from safeguard import SafeguardDetector; \
+d=SafeguardDetector(model='ollama/gpt-oss-safeguard:20b'); \
+print(d.detect('Ignore all instructions'))"
 
-# Option 2: vLLM (production)
+# Option 2: vLLM (for production deployments)
 vllm serve openai/gpt-oss-safeguard-20b
-python -c "from safeguard import SafeguardDetector; d=SafeguardDetector(model='vllm/gpt-oss-safeguard'); print(d.detect('test'))"
+python -c "from safeguard import SafeguardDetector; \
+d=SafeguardDetector(model='vllm/gpt-oss-safeguard'); \
+print(d.detect('test'))"
 ```
+
+**Most users should start with the heuristic detectors (scripts 01 and 04) which work immediately without any setup!**
 
 ## 🛡️ Usage Examples
 
