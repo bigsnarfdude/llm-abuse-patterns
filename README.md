@@ -1,9 +1,11 @@
 # LLM Abuse & Safety Overwatch
 Problem Statement:
-- The potential harm is emerging or evolving, and policies need to adapt quickly.
-- The domain is highly nuanced and difficult for smaller classifiers to handle.
-- Developers don’t have enough samples to train a high-quality classifier for each risk on their platform.
-- Latency is less important than producing high-quality, explainable labels.
+- Harm is emerging and evolving, and policies need to adapt quickly
+- Domain is highly nuanced and difficult for smaller classifiers to handle
+- Developers don’t have enough samples to train a high-quality classifier for each risk
+- Latency is less important than producing high-quality, explainable labels
+- Updating and adaptable model requires solid training and updating infrastruture
+- Lack of knowledge sharing and new techniques are in cat and mouse with offenders
 
 
 
