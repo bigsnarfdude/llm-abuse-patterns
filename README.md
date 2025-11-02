@@ -309,36 +309,20 @@ This repository is for **research and educational purposes only**.
 - Follow responsible disclosure practices
 - Respect AI safety guidelines and terms of service
 
-## 📄 License
+## License
 
 MIT License - See LICENSE file for details
 
-## 🤝 Contributing
 
-This is an experimental research repository. Contributions welcome:
-
-1. Fork the repository
-2. Create a feature branch
-3. Add experiments or improve documentation
-4. Submit a pull request
-
-## 📚 Documentation
+## Documentation
 
 - **README.md** (this file) - Complete documentation and usage guide
 - Inline code comments - Extensive documentation in all Python files
 - Working examples - Each script includes demo/test functions
 
-## 🔍 What Makes This Different
+## Project Status
 
-- **Production-Ready Code**: Not just theoretical - working implementations
-- **Research-Based**: All patterns from real academic papers and datasets
-- **Multiple Methods**: Compare different detection approaches
-- **Extensible**: Easy to add new patterns and detection strategies
-- **Well-Documented**: Comprehensive docs and inline comments
-
-## 📊 Project Status
-
-🔬 **Experimental Research Repository**
+ **Experimental Research Repository**
 
 Current capabilities:
 - ✅ Pattern database with real jailbreak patterns
@@ -353,9 +337,3 @@ Future work:
 - 🚧 Multi-modal detection
 - 🚧 Real-time monitoring dashboard
 - 🚧 Integration with production systems
-
----
-
-**Built following OpenAI's GPT-OSS Safeguard cookbook and real-world research**
-
-For questions or collaboration: See GitHub issues
