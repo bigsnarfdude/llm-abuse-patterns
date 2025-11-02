@@ -41,7 +41,7 @@ llm-abuse-patterns/
 └── README.md                           # This file
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
