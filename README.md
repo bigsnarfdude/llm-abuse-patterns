@@ -110,7 +110,7 @@ print(d.detect('test'))"
 
 **Note**: Most users should start with the heuristic detectors (`01_safeguard_pattern_detector.py` and `04_openai_guardrails.py`) which work instantly without downloading any models!
 
-## 🔬 Core Experiments
+## Core Experiments
 
 ### 1. Traffic-Based Intent & Misuse Detection
 
