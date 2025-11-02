@@ -55,7 +55,7 @@ pip install -r requirements.txt
 
 ### Running Examples
 
-**✅ All Scripts Run Locally - No API Keys Required!**
+** All Scripts Run Locally - No API Keys Required!**
 ```bash
 # Heuristic pattern detection (local, fast)
 python 01_safeguard_pattern_detector.py
