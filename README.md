@@ -26,7 +26,6 @@ This repository contains working experiments for:
 1. **Pattern Detection** - Using GPT-OSS Safeguard for jailbreak detection
 2. **Pattern Database** - Structured database of real jailbreak patterns
 3. **Detection Evaluation** - Comparing heuristic, ML-based, and LLM-based detection methods
-4. **OpenAI Guardrails** - Integration with OpenAI's moderation APIs
 
 ## Repository Structure
 
