@@ -28,7 +28,7 @@ This repository contains working experiments for:
 3. **Detection Evaluation** - Comparing heuristic, ML-based, and LLM-based detection methods
 4. **OpenAI Guardrails** - Integration with OpenAI's moderation APIs
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 llm-abuse-patterns/
