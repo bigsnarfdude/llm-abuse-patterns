@@ -144,7 +144,7 @@ Compares three detection approaches:
 
 **Files**: `03_detection_evaluation.py`
 
-## 🎓 Pattern Database
+## Pattern Database
 
 The pattern database includes real jailbreak patterns:
 
@@ -159,7 +159,7 @@ Each pattern includes:
 - Mitigation recommendations
 - Real examples from research
 
-## 📊 Detection Strategies
+## Detection Strategies
 
 ### Heuristic Detection
 - Fast keyword matching
@@ -179,7 +179,7 @@ Each pattern includes:
 - ~500ms latency
 - Highest accuracy for complex cases
 
-## 🏃 What Runs Locally vs What Needs API
+## What Runs Locally vs What Needs API
 
 ### ✅ All Main Scripts Run Locally (No Internet/API Required)
 
