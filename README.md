@@ -19,7 +19,7 @@ To build and experiment with a comprehensive "overwatch" system for detecting an
 
 This project explores real-time detection of Large Language Model (LLM) abuse using OpenAI's GPT-OSS Safeguard and other detection methods. It focuses on holistic traffic analysis and behavioral reasoning to identify malicious intent and system backdoors.
 
-## 🎯 Project Overview
+## Project Overview
 
 This repository contains working experiments for:
 
