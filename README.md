@@ -180,29 +180,29 @@ Each pattern includes:
 
 ## What Runs Locally vs What Needs API
 
-### ✅ All Main Scripts Run Locally (No Internet/API Required)
+### All Main Scripts Run Locally (No Internet/API Required)
 
-**Pattern Detector (`01_safeguard_pattern_detector.py`)** - ✅ 100% Local
+**Pattern Detector (`01_safeguard_pattern_detector.py`)** - 100% Local
 - Heuristic pattern matching
 - Base64 obfuscation detection
 - Special token detection
 - Keyword-based jailbreak detection
 - No API calls, no internet required
 
-**Pattern Database (`02_pattern_database.py`)** - ✅ 100% Local
+**Pattern Database (`02_pattern_database.py`)** - 100% Local
 - Pure Python data structures
 - Pattern querying and search
 - Detection strategy documentation
 - No external dependencies beyond standard library
 
-**Evaluation Harness (`03_detection_evaluation.py`)** - ✅ 100% Local
+**Evaluation Harness (`03_detection_evaluation.py`)** - 100% Local
 - Simulated heuristic detection
 - Simulated ML-based detection
 - Simulated LLM-judge detection
 - Performance benchmarking
 - All runs locally with mock data
 
-**Content Moderator (`04_openai_guardrails.py`)** - ✅ 100% Local
+**Content Moderator (`04_openai_guardrails.py`)** - 100% Local
 - Rule-based content moderation
 - Jailbreak pattern detection
 - Input/output guardrails
@@ -215,9 +215,9 @@ Each pattern includes:
 The `SafeguardDetector` class provides LLM-based detection using **OpenAI's open-source GPT-OSS Safeguard models**. It's more accurate than heuristics but requires downloading the models.
 
 **Open-Source Local Deployment Options:**
-- ✅ `model="ollama/gpt-oss-safeguard:20b"` → Local via Ollama (20B parameters)
-- ✅ `model="ollama/gpt-oss-safeguard:120b"` → Local via Ollama (120B parameters, higher accuracy)
-- ✅ `model="vllm/gpt-oss-safeguard"` → Local via vLLM (production deployments)
+-  `model="ollama/gpt-oss-safeguard:20b"` → Local via Ollama (20B parameters)
+-  `model="ollama/gpt-oss-safeguard:120b"` → Local via Ollama (120B parameters, higher accuracy)
+-  `model="vllm/gpt-oss-safeguard"` → Local via vLLM (production deployments)
 
 **Setup Instructions:**
 ```bash
