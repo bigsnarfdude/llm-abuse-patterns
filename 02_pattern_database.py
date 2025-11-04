@@ -13,6 +13,7 @@ from dataclasses import dataclass, asdict
 from typing import List, Dict, Optional
 from datetime import date
 from enum import Enum
+from pathlib import Path
 
 
 class Category(Enum):
@@ -48,34 +49,34 @@ class Pattern:
     Core pattern structure matching our fictional dataset schema.
     This is a real, usable data model!
     """
-    # Core identifiers
+    # Core identifiers (required)
     pattern_id: str
     category: str
     subcategory: str
-    
-    # Metadata
-    severity: str
-    first_observed: str  # ISO date
-    last_observed: Optional[str] = None
-    frequency: str = "common"  # rare, uncommon, common, widespread
-    
-    # Content
     description: str
     example_prompt: str
+
+    # Metadata (required)
+    severity: str
+    first_observed: str  # ISO date
+
+    # Optional metadata
+    last_observed: Optional[str] = None
+    frequency: str = "common"  # rare, uncommon, common, widespread
     example_context: Optional[str] = None
-    
-    # Detection
-    detection_signals: List[str] = None
-    detection_strategies: Dict[str, Dict] = None
-    
-    # Mitigation
-    preventive_measures: List[str] = None
-    detective_measures: List[str] = None
-    responsive_measures: List[str] = None
-    
-    # Relationships
-    related_patterns: List[str] = None
-    tags: List[str] = None
+
+    # Detection (optional)
+    detection_signals: Optional[List[str]] = None
+    detection_strategies: Optional[Dict[str, Dict]] = None
+
+    # Mitigation (optional)
+    preventive_measures: Optional[List[str]] = None
+    detective_measures: Optional[List[str]] = None
+    responsive_measures: Optional[List[str]] = None
+
+    # Relationships (optional)
+    related_patterns: Optional[List[str]] = None
+    tags: Optional[List[str]] = None
     
     def __post_init__(self):
         """Initialize empty lists"""
@@ -421,15 +422,19 @@ class PatternDatabase:
     
     def export_to_json(self, filepath: str):
         """Export all patterns to JSON file"""
+        # Convert to Path and create parent directories if needed
+        filepath = Path(filepath)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+
         data = {
             "version": "2.1.0",
             "exported": date.today().isoformat(),
             "patterns": [asdict(p) for p in self.patterns.values()]
         }
-        
+
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
-        
+
         print(f"Exported {len(self.patterns)} patterns to {filepath}")
 
 
@@ -494,9 +499,11 @@ def main():
     print("\n" + "=" * 80)
     print("Exporting Database")
     print("=" * 80)
-    
-    db.export_to_json("/home/claude/examples/pattern_database.json")
-    print("\nDatabase successfully exported!")
+
+    # Export to current directory
+    output_path = Path("pattern_database.json")
+    db.export_to_json(str(output_path))
+    print(f"\nDatabase successfully exported to {output_path.absolute()}!")
 
 
 if __name__ == "__main__":

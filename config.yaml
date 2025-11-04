@@ -1,0 +1,78 @@
+# LLM Abuse Patterns - Configuration File
+# =========================================
+
+# Detection Settings
+detection:
+  # Confidence threshold for flagging (0.0-1.0)
+  confidence_threshold: 0.7
+
+  # Minimum signals required for pattern matching
+  min_signals_normal: 2
+  min_signals_critical: 3
+
+  # Enable/disable detection methods
+  enable_base64_detection: true
+  enable_special_tokens_detection: true
+  enable_pattern_matching: true
+
+# Guardrails Settings
+guardrails:
+  # Block flagged content
+  block_on_violation: true
+
+  # Confidence scores for categories (0.0-1.0)
+  category_threshold: 0.3
+
+  # Context-aware exceptions
+  allow_educational_violence: true
+  allow_medical_sexual: true
+
+# Pattern Database Settings
+database:
+  # Export location
+  export_directory: "./exports"
+  export_filename: "pattern_database.json"
+
+  # Database version
+  version: "2.1.0"
+
+# Logging Settings
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+
+  # Log format: text or json
+  format: "text"
+
+  # Log to file
+  log_to_file: false
+  log_file_path: "./logs/llm_abuse_patterns.log"
+
+  # Log to console
+  log_to_console: true
+
+# API Settings (for safeguard.py)
+api:
+  # Default model
+  default_model: "ollama/gpt-oss-safeguard:20b"
+
+  # Base URLs for different providers
+  ollama_base_url: "http://localhost:11434"
+  vllm_base_url: "http://localhost:8000"
+
+  # Timeout in seconds
+  timeout: 60
+
+  # Reasoning effort: low, medium, high
+  reasoning_effort: "medium"
+
+# Performance Settings
+performance:
+  # Maximum latency targets (milliseconds)
+  max_latency_heuristic: 10
+  max_latency_ml: 100
+  max_latency_llm: 1000
+
+  # Enable caching
+  enable_caching: true
+  cache_ttl_seconds: 300

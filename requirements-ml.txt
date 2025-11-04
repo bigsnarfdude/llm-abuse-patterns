@@ -1,0 +1,21 @@
+# ML dependencies for advanced detection (optional)
+# Only install if you need actual ML-based detection or GPT-OSS Safeguard integration
+
+-r requirements.txt  # Include base requirements
+
+# ML frameworks
+transformers>=4.30.0
+torch>=2.0.0
+accelerate>=0.20.0
+
+# Evaluation and metrics
+scikit-learn>=1.3.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Local LLM inference (choose one)
+# vllm>=0.10.2  # For production deployments
+# ollama-python>=0.1.0  # For local development with Ollama
+
+# Cloud API support
+openai>=1.0.0  # For OpenAI API and GPT-OSS Safeguard via OpenRouter

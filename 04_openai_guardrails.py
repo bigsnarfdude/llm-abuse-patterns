@@ -34,27 +34,31 @@ class LocalContentModerator:
         self.rules = {
             "harassment": [
                 "idiot", "stupid", "moron", "dumb", "loser",
-                "kill yourself", "hate you", "disgusting"
+                "kill yourself", "hate you", "disgusting", "retard"
             ],
             "hate": [
                 "nazi", "supremacist", "inferior race", "racial slur",
-                "genocide", "ethnic cleansing"
+                "genocide", "ethnic cleansing", "subhuman"
             ],
             "violence": [
-                "kill", "murder", "assault", "attack", "harm",
-                "bomb", "weapon", "shoot", "stab", "torture"
+                "kill", "murder", "assault", "attack", "harm", "hurt",
+                "bomb", "explosive", "weapon", "gun", "shoot", "stab", "torture",
+                "poison", "strangle", "beat up", "fight", "injure", "wound",
+                "destroy", "demolish", "blow up", "detonate", "ied", "grenade",
+                "rifle", "pistol", "ammunition", "molotov", "arson"
             ],
             "self-harm": [
                 "suicide", "self harm", "cut myself", "end my life",
-                "overdose", "hanging"
+                "overdose", "hanging", "jump off", "slit wrist"
             ],
             "sexual": [
                 "porn", "xxx", "sexual content", "explicit",
-                "nsfw", "adult content"
+                "nsfw", "adult content", "nude", "naked"
             ],
             "jailbreak": [
                 "ignore instructions", "bypass", "dan",
-                "unrestricted mode", "jailbreak", "do anything now"
+                "unrestricted mode", "jailbreak", "do anything now",
+                "pretend you are", "act as if"
             ]
         }
 

@@ -134,8 +134,10 @@ class LocalPatternDetector:
                     detected_signals.append(signal)
                     pattern_signals.append(signal)
 
-            # If we found multiple signals from this pattern, it's a match
-            if len(pattern_signals) >= 2 or (len(pattern_signals) >= 1 and pattern.severity == "high"):
+            # Require at least 2 signals to reduce false positives
+            # For critical patterns, require stronger evidence
+            min_signals = 3 if pattern.severity == "critical" else 2
+            if len(pattern_signals) >= min_signals:
                 matched_patterns.append({
                     "pattern_id": pattern.pattern_id,
                     "category": pattern.category,
