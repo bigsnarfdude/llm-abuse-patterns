@@ -16,9 +16,14 @@ Features:
 
 import os
 import json
+import logging
 from typing import Dict, List, Optional, Literal
 from dataclasses import dataclass
 import requests
+from exceptions import DetectorUnavailableError
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -216,13 +221,13 @@ Content to analyze: [INPUT]
         try:
             # Ollama API endpoint
             url = f"{self.base_url}/api/chat"
-            
+
             # Build messages following Harmony format
             messages = [
                 {"role": "system", "content": self.policy},
                 {"role": "user", "content": f"Content to analyze: {prompt}"}
             ]
-            
+
             response = requests.post(
                 url,
                 json={
@@ -233,14 +238,27 @@ Content to analyze: [INPUT]
                 },
                 timeout=60
             )
-            
+
             response.raise_for_status()
             result_text = response.json()["message"]["content"]
-            
+
             return self._parse_response(result_text)
-            
+
+        except requests.exceptions.Timeout as e:
+            logger.error("Ollama request timeout", extra={"error": str(e)})
+            return self._fallback_detection(prompt)
+        except requests.exceptions.ConnectionError as e:
+            logger.error("Cannot connect to Ollama", extra={"error": str(e), "url": url})
+            return self._fallback_detection(prompt)
+        except requests.exceptions.HTTPError as e:
+            logger.error("Ollama HTTP error", extra={"error": str(e), "status_code": e.response.status_code if hasattr(e, 'response') else None})
+            return self._fallback_detection(prompt)
+        except (KeyError, json.JSONDecodeError) as e:
+            logger.error("Invalid response format from Ollama", extra={"error": str(e)})
+            return self._fallback_detection(prompt)
         except Exception as e:
-            print(f"Ollama detection failed: {e}")
+            # Catch-all for truly unexpected errors
+            logger.exception("Unexpected error in Ollama detection")
             return self._fallback_detection(prompt)
 
 
@@ -248,12 +266,12 @@ Content to analyze: [INPUT]
         """Detect using vLLM server"""
         try:
             url = f"{self.base_url}/v1/chat/completions"
-            
+
             messages = [
                 {"role": "system", "content": self.policy},
                 {"role": "user", "content": f"Content to analyze: {prompt}"}
             ]
-            
+
             response = requests.post(
                 url,
                 json={
@@ -263,14 +281,27 @@ Content to analyze: [INPUT]
                 },
                 timeout=60
             )
-            
+
             response.raise_for_status()
             result_text = response.json()["choices"][0]["message"]["content"]
-            
+
             return self._parse_response(result_text)
-            
+
+        except requests.exceptions.Timeout as e:
+            logger.error("vLLM request timeout", extra={"error": str(e)})
+            return self._fallback_detection(prompt)
+        except requests.exceptions.ConnectionError as e:
+            logger.error("Cannot connect to vLLM", extra={"error": str(e), "url": url})
+            return self._fallback_detection(prompt)
+        except requests.exceptions.HTTPError as e:
+            logger.error("vLLM HTTP error", extra={"error": str(e), "status_code": e.response.status_code if hasattr(e, 'response') else None})
+            return self._fallback_detection(prompt)
+        except (KeyError, json.JSONDecodeError, IndexError) as e:
+            logger.error("Invalid response format from vLLM", extra={"error": str(e)})
+            return self._fallback_detection(prompt)
         except Exception as e:
-            print(f"vLLM detection failed: {e}")
+            # Catch-all for truly unexpected errors
+            logger.exception("Unexpected error in vLLM detection")
             return self._fallback_detection(prompt)
 
 

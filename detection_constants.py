@@ -1,0 +1,41 @@
+"""
+Detection Constants
+===================
+Centralized constants for detection thresholds and weights.
+"""
+
+# Pattern Matching Thresholds
+MIN_SIGNALS_NORMAL = 2
+MIN_SIGNALS_CRITICAL = 3
+
+# Confidence Calculation Weights
+BASE_CONFIDENCE = 0.5
+SIGNAL_WEIGHT = 0.1
+BASE64_BONUS = 0.3
+SPECIAL_TOKEN_BONUS = 0.2
+MAX_CONFIDENCE = 0.95
+MIN_CONFIDENCE = 0.05
+
+# Detection Thresholds
+HEURISTIC_CONFIDENCE_THRESHOLD = 0.5
+ML_CONFIDENCE_THRESHOLD = 0.6
+LLM_CONFIDENCE_THRESHOLD = 0.7
+
+# Input Validation
+MAX_PROMPT_LENGTH = 50000
+MAX_BASE64_LENGTH = 10000
+MIN_DECODED_LENGTH = 5
+
+# Guardrails Thresholds
+CATEGORY_SCORE_WEIGHT = 0.3
+CATEGORY_FLAG_THRESHOLD = 0.3
+
+# Performance Targets (milliseconds)
+MAX_LATENCY_HEURISTIC = 10
+MAX_LATENCY_ML = 100
+MAX_LATENCY_LLM = 1000
+
+# Evaluation Constants
+PATTERN_SCORE_WEIGHT = 0.3
+KEYWORD_SCORE_WEIGHT = 0.15
+MAX_SCORE = 1.0

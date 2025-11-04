@@ -11,8 +11,25 @@ For LLM-based detection with GPT-OSS Safeguard, see safeguard.py
 import json
 import re
 import base64
+import binascii
+import logging
 from typing import Dict, List, Optional
 from dataclasses import dataclass
+from input_validation import get_validator
+from exceptions import InvalidInputError, DetectionError
+from detection_constants import (
+    MIN_SIGNALS_NORMAL,
+    MIN_SIGNALS_CRITICAL,
+    BASE_CONFIDENCE,
+    SIGNAL_WEIGHT,
+    BASE64_BONUS,
+    SPECIAL_TOKEN_BONUS,
+    MAX_CONFIDENCE,
+    MIN_DECODED_LENGTH
+)
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -111,10 +128,34 @@ class LocalPatternDetector:
         """
         Detect jailbreak attempts using heuristic rules.
 
+        Args:
+            prompt: User prompt to analyze
+
         Returns:
             Dict with is_jailbreak, confidence, matched_patterns, reasoning
+
+        Raises:
+            InvalidInputError: If prompt validation fails
+            DetectionError: If detection fails unexpectedly
         """
-        prompt_lower = prompt.lower()
+        try:
+            # Validate input
+            validator = get_validator()
+            is_valid, error_msg = validator.validate_prompt(prompt)
+            if not is_valid:
+                logger.warning("Invalid input detected", extra={"error": error_msg})
+                raise InvalidInputError(error_msg)
+
+            # Sanitize input
+            prompt = validator.sanitize_prompt(prompt)
+            prompt_lower = prompt.lower()
+        except InvalidInputError:
+            # Re-raise validation errors
+            raise
+        except Exception as e:
+            # Log and wrap unexpected errors
+            logger.exception("Unexpected error during input validation")
+            raise DetectionError(f"Input validation failed: {str(e)}") from e
 
         # Check for base64 encoding
         has_base64 = self._check_base64(prompt)
@@ -134,9 +175,9 @@ class LocalPatternDetector:
                     detected_signals.append(signal)
                     pattern_signals.append(signal)
 
-            # Require at least 2 signals to reduce false positives
+            # Require minimum signals to reduce false positives
             # For critical patterns, require stronger evidence
-            min_signals = 3 if pattern.severity == "critical" else 2
+            min_signals = MIN_SIGNALS_CRITICAL if pattern.severity == "critical" else MIN_SIGNALS_NORMAL
             if len(pattern_signals) >= min_signals:
                 matched_patterns.append({
                     "pattern_id": pattern.pattern_id,
@@ -152,12 +193,13 @@ class LocalPatternDetector:
             has_special_tokens
         )
 
-        # Calculate confidence
+        # Calculate confidence using defined weights
         confidence = min(
-            0.5 + (len(detected_signals) * 0.1) +
-            (0.3 if has_base64 else 0) +
-            (0.2 if has_special_tokens else 0),
-            0.95
+            BASE_CONFIDENCE +
+            (len(detected_signals) * SIGNAL_WEIGHT) +
+            (BASE64_BONUS if has_base64 else 0) +
+            (SPECIAL_TOKEN_BONUS if has_special_tokens else 0),
+            MAX_CONFIDENCE
         )
 
         # Build reasoning
@@ -189,17 +231,31 @@ class LocalPatternDetector:
 
     def _check_base64(self, text: str) -> bool:
         """Check for base64 encoded strings"""
+        # Get validator for size checking
+        validator = get_validator()
+
         # Look for base64-like patterns (alphanumeric + / + =)
         base64_pattern = r'[A-Za-z0-9+/]{20,}={0,2}'
         matches = re.findall(base64_pattern, text)
 
         for match in matches:
+            # Validate size before decoding to prevent memory exhaustion
+            if not validator.validate_base64(match):
+                logger.warning("Base64 string too large, skipping", extra={"size": len(match)})
+                continue
+
             try:
                 # Try to decode - if it works and produces reasonable text, flag it
                 decoded = base64.b64decode(match).decode('utf-8', errors='ignore')
-                if len(decoded) > 5:  # Meaningful decoded text
+                if len(decoded) > MIN_DECODED_LENGTH:  # Meaningful decoded text
                     return True
-            except:
+            except (ValueError, UnicodeDecodeError, binascii.Error) as e:
+                # Specific exceptions: invalid base64, decode errors
+                logger.debug("Base64 decode failed", extra={"error": str(e)})
+                continue
+            except Exception as e:
+                # Log unexpected errors for debugging
+                logger.warning("Unexpected error in base64 detection", extra={"error": str(e)})
                 continue
 
         return False

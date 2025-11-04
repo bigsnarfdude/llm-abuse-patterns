@@ -4,7 +4,11 @@ Simplified test suite that doesn't require pytest
 Run with: python tests/test_all.py
 """
 import sys
-sys.path.insert(0, '/home/user/llm-abuse-patterns')
+from pathlib import Path
+
+# Add project root to path (works from any location)
+project_root = Path(__file__).parent.parent.absolute()
+sys.path.insert(0, str(project_root))
 
 from importlib import import_module
 

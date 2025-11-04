@@ -11,6 +11,7 @@ For cloud-based moderation with OpenAI API, set OPENAI_API_KEY and modify import
 import re
 from typing import Dict, List, Tuple
 from dataclasses import dataclass
+from detection_constants import CATEGORY_SCORE_WEIGHT, CATEGORY_FLAG_THRESHOLD
 
 
 @dataclass
@@ -68,6 +69,16 @@ class LocalContentModerator:
             "sexual": ["health", "education", "medical"]
         }
 
+        # Precompile jailbreak patterns for performance
+        self.jailbreak_patterns = [
+            (re.compile(r'ignore.*previous.*instructions', re.IGNORECASE), "instruction override"),
+            (re.compile(r'dan.*do anything now', re.IGNORECASE), "DAN jailbreak"),
+            (re.compile(r'bypass.*restrictions', re.IGNORECASE), "restriction bypass"),
+            (re.compile(r'pretend.*unrestricted', re.IGNORECASE), "unrestricted persona"),
+            (re.compile(r'simulation.*simulation', re.IGNORECASE), "nested roleplay"),
+            (re.compile(r'\[SYSTEM\]', re.IGNORECASE), "system token injection"),
+        ]
+
     def moderate(self, text: str) -> ModerationResult:
         """
         Check text for policy violations using local rules.
@@ -99,9 +110,9 @@ class LocalContentModerator:
                         has_exception = True
                         break
 
-            # Calculate score and flag
-            score = min(len(matches) * 0.3, 1.0)
-            is_flagged = score > 0.3 and not has_exception
+            # Calculate score and flag using constants
+            score = min(len(matches) * CATEGORY_SCORE_WEIGHT, 1.0)
+            is_flagged = score > CATEGORY_FLAG_THRESHOLD and not has_exception
 
             categories[category] = is_flagged
             category_scores[category] = score
@@ -134,18 +145,10 @@ class LocalContentModerator:
         """
         text_lower = text.lower()
 
-        jailbreak_patterns = [
-            (r'ignore.*previous.*instructions', "instruction override"),
-            (r'dan.*do anything now', "DAN jailbreak"),
-            (r'bypass.*restrictions', "restriction bypass"),
-            (r'pretend.*unrestricted', "unrestricted persona"),
-            (r'simulation.*simulation', "nested roleplay"),
-            (r'\[SYSTEM\]', "system token injection"),
-        ]
-
+        # Use precompiled patterns
         detected = []
-        for pattern, name in jailbreak_patterns:
-            if re.search(pattern, text_lower):
+        for compiled_pattern, name in self.jailbreak_patterns:
+            if compiled_pattern.search(text_lower):
                 detected.append(name)
 
         is_jailbreak = len(detected) > 0

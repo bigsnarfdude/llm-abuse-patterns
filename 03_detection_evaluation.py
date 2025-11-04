@@ -29,6 +29,12 @@ import re
 from typing import List, Dict, Tuple
 from dataclasses import dataclass
 import statistics
+from detection_constants import (
+    PATTERN_SCORE_WEIGHT,
+    KEYWORD_SCORE_WEIGHT,
+    MAX_SCORE,
+    HEURISTIC_CONFIDENCE_THRESHOLD
+)
 
 
 @dataclass
@@ -62,46 +68,47 @@ class HeuristicDetector(DetectorBase):
     Rule-based detector using pattern matching.
     Fast but brittle. Precision ~0.85-0.92 based on research.
     """
-    
+
     def __init__(self):
+        # Precompile regex patterns for performance
         self.jailbreak_patterns = [
-            r'\bdan\b|\bdo anything now\b',
-            r'ignore (previous|all|your) (instructions?|rules?|guidelines?)',
-            r'you are (now|about to|going to) (be|become|act as|roleplay)',
-            r'(pretend|act|roleplay) (to be|as|like) (a|an)',
-            r'(simulation|scenario) (within|inside) (a|another) (simulation|scenario)',
-            r'bypass|jailbreak|unrestricted|uncensored',
-            r'(system|admin|developer|debug) mode',
-            r'<\|.*?\|>',  # Special tokens
-            r'[A-Za-z0-9+/]{30,}={0,2}',  # Base64
+            re.compile(r'\bdan\b|\bdo anything now\b', re.IGNORECASE),
+            re.compile(r'ignore (previous|all|your) (instructions?|rules?|guidelines?)', re.IGNORECASE),
+            re.compile(r'you are (now|about to|going to) (be|become|act as|roleplay)', re.IGNORECASE),
+            re.compile(r'(pretend|act|roleplay) (to be|as|like) (a|an)', re.IGNORECASE),
+            re.compile(r'(simulation|scenario) (within|inside) (a|another) (simulation|scenario)', re.IGNORECASE),
+            re.compile(r'bypass|jailbreak|unrestricted|uncensored', re.IGNORECASE),
+            re.compile(r'(system|admin|developer|debug) mode', re.IGNORECASE),
+            re.compile(r'<\|.*?\|>', re.IGNORECASE),  # Special tokens
+            re.compile(r'[A-Za-z0-9+/]{30,}={0,2}'),  # Base64
         ]
-        
+
         self.jailbreak_keywords = [
             'dan', 'ignore instructions', 'bypass', 'jailbreak',
             'uncensored', 'unrestricted', 'roleplay as', 'pretend to be',
             'simulation', 'developer mode', 'system prompt'
         ]
-    
+
     def detect(self, prompt: str) -> DetectionResult:
         start = time.time()
-        
+
         prompt_lower = prompt.lower()
-        
-        # Pattern matching
+
+        # Pattern matching using precompiled patterns
         pattern_matches = []
-        for pattern in self.jailbreak_patterns:
-            if re.search(pattern, prompt_lower, re.IGNORECASE):
-                pattern_matches.append(pattern)
-        
+        for compiled_pattern in self.jailbreak_patterns:
+            if compiled_pattern.search(prompt_lower):
+                pattern_matches.append(compiled_pattern.pattern)
+
         # Keyword matching
         keyword_matches = [kw for kw in self.jailbreak_keywords if kw in prompt_lower]
-        
-        # Scoring
-        pattern_score = min(len(pattern_matches) * 0.3, 1.0)
-        keyword_score = min(len(keyword_matches) * 0.15, 1.0)
-        
-        confidence = min(pattern_score + keyword_score, 1.0)
-        is_jailbreak = confidence >= 0.5
+
+        # Scoring using constants
+        pattern_score = min(len(pattern_matches) * PATTERN_SCORE_WEIGHT, MAX_SCORE)
+        keyword_score = min(len(keyword_matches) * KEYWORD_SCORE_WEIGHT, MAX_SCORE)
+
+        confidence = min(pattern_score + keyword_score, MAX_SCORE)
+        is_jailbreak = confidence >= HEURISTIC_CONFIDENCE_THRESHOLD
         
         latency = (time.time() - start) * 1000
         
