@@ -6,6 +6,22 @@ Compare multiple jailbreak detection methods and evaluate their performance.
 This implements the evaluation framework from our fictional dataset.
 
 Based on real research: JailbreakBench, JailbreakRadar, and detection papers.
+
+IMPORTANT: This script uses SIMULATED ML and LLM detectors for demonstration purposes.
+- MLSimulatedDetector: Simulates BERT/RoBERTa style classification (sleeps 45ms)
+- LLMSimulatedDetector: Simulates GPT-4/Claude judge (sleeps 500ms)
+- Results demonstrate the evaluation framework, not actual ML model performance
+
+For production use:
+1. Replace MLSimulatedDetector with actual fine-tuned transformers model
+2. Replace LLMSimulatedDetector with real GPT-OSS Safeguard or GPT-4 API calls
+3. See safeguard.py for actual LLM-based detection implementation
+
+This framework is useful for:
+- Testing evaluation harness logic
+- Understanding detection method trade-offs
+- Benchmarking new detection approaches
+- Rapid prototyping without model dependencies
 """
 
 import time
@@ -102,11 +118,21 @@ class HeuristicDetector(DetectorBase):
 
 class MLSimulatedDetector(DetectorBase):
     """
-    Simulated ML-based detector (BERT/RoBERTa style).
+    SIMULATED ML-based detector (BERT/RoBERTa style) for demonstration.
     Better accuracy but slower. Precision ~0.89-0.94 based on research.
-    
-    In practice, this would use a fine-tuned transformer model.
-    We simulate it with enhanced heuristics + confidence adjustment.
+
+    ⚠️  WARNING: This is a SIMULATION using sleep() and heuristics.
+
+    In production, replace this with:
+    - Fine-tuned BERT/RoBERTa on JailbreakDB dataset
+    - DistilBERT for faster inference
+    - Custom transformer trained on your specific threat model
+
+    Example production implementation:
+        from transformers import pipeline
+        self.classifier = pipeline("text-classification",
+                                   model="your-fine-tuned-model")
+        result = self.classifier(prompt)
     """
     
     def __init__(self):
@@ -149,11 +175,21 @@ class MLSimulatedDetector(DetectorBase):
 
 class LLMSimulatedDetector(DetectorBase):
     """
-    Simulated LLM-as-judge detector (GPT-4/Claude style).
+    SIMULATED LLM-as-judge detector (GPT-4/Claude style) for demonstration.
     Highest accuracy but expensive and slow. Precision ~0.94-0.96.
-    
-    In practice, this would call GPT-4 or gpt-oss-safeguard.
-    We simulate with enhanced logic.
+
+    ⚠️  WARNING: This is a SIMULATION using sleep() and pattern matching.
+
+    In production, replace this with actual LLM API calls:
+    - GPT-OSS Safeguard (open-source, see safeguard.py)
+    - GPT-4 with meta-prompt
+    - Claude with safety evaluation prompt
+    - Llama Guard (Meta's safety model)
+
+    Example production implementation:
+        from safeguard import SafeguardDetector
+        self.detector = SafeguardDetector(model="ollama/gpt-oss-safeguard:20b")
+        result = self.detector.detect(prompt)
     """
     
     def __init__(self):
