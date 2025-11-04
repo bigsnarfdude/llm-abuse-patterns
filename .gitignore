@@ -192,6 +192,9 @@ cython_debug/
 # Ruff stuff:
 .ruff_cache/
 
+# Deprecated code
+deprecated/
+
 # PyPI configuration file
 .pypirc
 
