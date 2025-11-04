@@ -34,7 +34,7 @@ class GuardrailsConfig(BaseModel):
 
 class DatabaseConfig(BaseModel):
     """Database settings"""
-    export_directory: str = "./exports"
+    export_directory: str = "./data"
     export_filename: str = "pattern_database.json"
     version: str = "2.1.0"
 

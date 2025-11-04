@@ -327,8 +327,10 @@ if __name__ == "__main__":
     print("Database Persistence Demo")
     print("="*70)
 
-    # Create database
-    db = PatternDB("demo_patterns.db")
+    # Create database in data directory
+    from pathlib import Path
+    db_path = Path(__file__).parent.parent.parent / "data" / "demo_patterns.db"
+    db = PatternDB(str(db_path))
 
     # Add sample pattern
     sample_pattern = {
