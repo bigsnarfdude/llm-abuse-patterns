@@ -500,8 +500,8 @@ def main():
     print("Exporting Database")
     print("=" * 80)
 
-    # Export to current directory
-    output_path = Path("pattern_database.json")
+    # Export to data directory
+    output_path = Path("data/pattern_database.json")
     db.export_to_json(str(output_path))
     print(f"\nDatabase successfully exported to {output_path.absolute()}!")
 
