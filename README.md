@@ -72,17 +72,19 @@ python 03_real_detection_evaluation.py
 python 04_openai_guardrails.py
 ```
 
-**Note:** The real evaluation script requires Ollama with GPT-OSS 20B model:
+**Note:** The real evaluation script requires Ollama with GPT-OSS Safeguard model:
 ```bash
 # Install Ollama (if not already installed)
 brew install ollama
 
-# Download GPT-OSS 20B model (13GB)
-ollama pull gpt-oss:20b
+# Download OFFICIAL GPT-OSS Safeguard model (13GB) - RECOMMENDED
+ollama pull gpt-oss-safeguard:latest
 
 # Start Ollama server
 ollama serve
 ```
+
+**Why gpt-oss-safeguard:latest?** Official OpenAI release with +9% better recall, +6.3% F1 improvement, and 15% faster inference. See [docs/MODEL_COMPARISON.md](docs/MODEL_COMPARISON.md) for detailed analysis.
 
 ### Running Tests
 
@@ -110,39 +112,40 @@ Fast keyword and pattern matching for common jailbreak attempts.
 - **Implementation:** `01_safeguard_pattern_detector.py`
 
 ### 2. Real LLM Detection (Production-Grade ✅)
-Deep contextual reasoning using GPT-OSS Safeguard 20B running locally on M2 Mac.
+Deep contextual reasoning using official GPT-OSS Safeguard running locally on M2 Mac.
 
-- **Latency:** 13.0s (median inference on 13GB model with M2 GPU)
-- **Precision:** 86.3% (some false alarms)
-- **Recall:** 60.0% (catches 60% of real jailbreaks)
-- **F1 Score:** 70.8%
+- **Latency:** 11.1s (median inference on 13GB model with M2 GPU)
+- **Precision:** 87.3% (balanced false alarm rate)
+- **Recall:** 69.0% (catches 69% of real jailbreaks)
+- **F1 Score:** 77.1%
 - **Best for:** Second-layer analysis after heuristic pass
 - **Implementation:** `src/llm_abuse_patterns/safeguard.py`
-- **Requires:** Ollama with `gpt-oss:20b` model
+- **Requires:** Ollama with `gpt-oss-safeguard:latest` model (official release)
 
 ### 3. 🏆 Layered Defense (Heuristic → LLM)
 Two-layer approach: instant heuristic filtering followed by LLM analysis for passed prompts.
 
-- **Latency:** 11.0s (median, varies based on heuristic filtering)
-- **Precision:** 86.5% (balanced false alarm rate)
-- **Recall:** 67.5% (best overall - catches 67.5% of jailbreaks)
-- **F1 Score:** 75.8% (highest overall performance)
+- **Latency:** 9.1s (median, varies based on heuristic filtering)
+- **Precision:** 84.0% (balanced false alarm rate)
+- **Recall:** 68.0% (catches 68% of jailbreaks)
+- **F1 Score:** 75.1% (strong overall performance)
 - **Efficiency:** 12.5% blocked instantly by heuristic (<1ms)
-- **Cost Savings:** LLM only processes 87.5% of traffic
+- **Cost Savings:** LLM only processes 87.5% of traffic, 17% faster with official model
 
 ### Academic Evaluation Results
 
-Evaluated on **JailbreakHub dataset** (400 prompts: 200 real jailbreaks, 200 benign):
+Evaluated on **JailbreakHub dataset** (400 prompts: 200 real jailbreaks, 200 benign) using **official gpt-oss-safeguard:latest** model:
 
 | Method | Precision | Recall | F1 Score | Accuracy | Median Latency |
 |--------|-----------|--------|----------|----------|----------------|
 | Heuristic | 96.0% | 24.0% | 38.4% | 61.5% | 0.2ms |
-| Real-LLM | 86.3% | 60.0% | 70.8% | 75.2% | 13.0s |
-| **🏆 Layered** | **86.5%** | **67.5%** | **75.8%** | **78.5%** | 11.0s |
+| **Real-LLM** | **87.3%** | **69.0%** | **77.1%** | **79.5%** | 11.1s |
+| Layered | 84.0% | 68.0% | 75.1% | 77.5% | 9.1s |
 
+**Model:** [gpt-oss-safeguard:latest](https://ollama.com/library/gpt-oss-safeguard) - Official OpenAI release (+9% recall vs community variant)
 **Dataset:** [walledai/JailbreakHub](https://huggingface.co/datasets/walledai/JailbreakHub) - Real in-the-wild jailbreaks from Reddit/Discord (2022-2023)
-**Details:** See `docs/JAILBREAK_EVALUATION_COMPARISON.md` for full evaluation methodology and results
-**Evaluation Script:** `05_jailbreakhub_evaluation.py`
+**Details:** See `docs/JAILBREAK_EVALUATION_COMPARISON.md` for methodology and `docs/MODEL_COMPARISON.md` for model comparison
+**Evaluation Scripts:** `05_jailbreakhub_evaluation.py`, `06_jailbreakhub_safeguard_eval.py`
 
 ## Pattern Database
 
