@@ -220,6 +220,30 @@ SQLite-based pattern storage is provided in `src/llm_abuse_patterns/db_persisten
 - [MITRE ATLAS](https://atlas.mitre.org/) - AI threat landscape
 - [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework) - Risk management framework
 
+## Fine-tuning Experiments
+
+We explored fine-tuning GPT-OSS Safeguard models on jailbreak detection using Unsloth + QLoRA:
+
+**Experiment Setup:**
+- **Hardware**: RTX 4070 Ti SUPER (16GB VRAM) on nigel.birs.ca
+- **Model**: openai/gpt-oss-20b with 4-bit quantization
+- **Dataset**: 400 JailbreakHub examples (320 train, 80 val)
+- **Memory**: 11.67GB model + QLoRA (7.96M trainable params, 0.07% of total)
+
+**Key Findings:**
+- ✅ GPT-OSS 20B fits in 16GB VRAM with 4-bit quantization
+- ✅ QLoRA enables efficient fine-tuning on consumer hardware
+- ✅ Complete infrastructure functional (model, data pipeline, trainer)
+- ⚠️ Training blocked by trl 0.23.0 library compatibility bug
+
+**Documentation:**
+- `FINETUNING_EXPERIMENT.md` - Setup guide and configuration
+- `docs/FINETUNING_FINDINGS.md` - Comprehensive experimental results
+- `prepare_finetune_dataset.py` - Dataset preparation pipeline
+- `finetune_gpt_oss_safeguard.py` - QLoRA training script
+
+**Status**: Research findings documented. Demonstrates feasibility of fine-tuning 20B models on consumer GPUs. Training pending library fix.
+
 ## Project Status
 
 **Experimental Research Repository**
@@ -230,8 +254,10 @@ Current capabilities:
 - ✅ Evaluation harness with 15+ test cases
 - ✅ Production infrastructure (config, logging, DB)
 - ✅ Comprehensive documentation
+- ✅ Fine-tuning infrastructure for GPT-OSS models
 
 Future work:
+- 🚧 Complete fine-tuning experiments (pending library compatibility fix)
 - 🚧 Expand pattern database with more techniques
 - 🚧 Train custom ML models
 - 🚧 Multi-modal detection (images, audio)
