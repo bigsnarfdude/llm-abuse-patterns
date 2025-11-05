@@ -102,22 +102,47 @@ python run_tests.py
 ### 1. Heuristic Detection (Real Implementation ✅)
 Fast keyword and pattern matching for common jailbreak attempts.
 
-- **Latency:** <1ms (tested on M2 Mac)
-- **Accuracy:** ~85% (fast but misses subtle attacks)
-- **Best for:** Real-time API filtering, high-throughput scenarios
+- **Latency:** 0.2ms (median on M2 Mac)
+- **Precision:** 96.0% (very few false alarms)
+- **Recall:** 24.0% (misses 76% of subtle jailbreaks)
+- **F1 Score:** 38.4%
+- **Best for:** First-layer filtering, instant blocking of obvious attacks
 - **Implementation:** `01_safeguard_pattern_detector.py`
 
 ### 2. Real LLM Detection (Production-Grade ✅)
 Deep contextual reasoning using GPT-OSS Safeguard 20B running locally on M2 Mac.
 
-- **Latency:** 5-8 seconds (actual inference on 13GB model)
-- **Accuracy:** ~95% (catches subtle and novel jailbreaks)
-- **Best for:** Content moderation queues, high-value decisions
+- **Latency:** 13.0s (median inference on 13GB model with M2 GPU)
+- **Precision:** 86.3% (some false alarms)
+- **Recall:** 60.0% (catches 60% of real jailbreaks)
+- **F1 Score:** 70.8%
+- **Best for:** Second-layer analysis after heuristic pass
 - **Implementation:** `src/llm_abuse_patterns/safeguard.py`
 - **Requires:** Ollama with `gpt-oss:20b` model
 
-### Comparison (Real Performance on M2 Mac)
-See `03_real_detection_evaluation.py` for side-by-side comparison using actual working detectors. No simulations, no fake `time.sleep()` delays - just real measurements.
+### 3. 🏆 Layered Defense (Heuristic → LLM)
+Two-layer approach: instant heuristic filtering followed by LLM analysis for passed prompts.
+
+- **Latency:** 11.0s (median, varies based on heuristic filtering)
+- **Precision:** 86.5% (balanced false alarm rate)
+- **Recall:** 67.5% (best overall - catches 67.5% of jailbreaks)
+- **F1 Score:** 75.8% (highest overall performance)
+- **Efficiency:** 12.5% blocked instantly by heuristic (<1ms)
+- **Cost Savings:** LLM only processes 87.5% of traffic
+
+### Academic Evaluation Results
+
+Evaluated on **JailbreakHub dataset** (400 prompts: 200 real jailbreaks, 200 benign):
+
+| Method | Precision | Recall | F1 Score | Accuracy | Median Latency |
+|--------|-----------|--------|----------|----------|----------------|
+| Heuristic | 96.0% | 24.0% | 38.4% | 61.5% | 0.2ms |
+| Real-LLM | 86.3% | 60.0% | 70.8% | 75.2% | 13.0s |
+| **🏆 Layered** | **86.5%** | **67.5%** | **75.8%** | **78.5%** | 11.0s |
+
+**Dataset:** [walledai/JailbreakHub](https://huggingface.co/datasets/walledai/JailbreakHub) - Real in-the-wild jailbreaks from Reddit/Discord (2022-2023)
+**Details:** See `docs/JAILBREAK_EVALUATION_COMPARISON.md` for full evaluation methodology and results
+**Evaluation Script:** `05_jailbreakhub_evaluation.py`
 
 ## Pattern Database
 
