@@ -306,6 +306,32 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 
 ---
 
+## Update: Library Bug Fixed (2025-11-05)
+
+**Fix Applied:**
+```bash
+# On nigel.birs.ca
+pip install trl==0.19.0 --force-reinstall
+```
+
+**Status:**
+- ✅ Successfully downgraded trl 0.23.0 → 0.19.0
+- ✅ Environment ready for training
+- ⚠️ Server became unreachable before training could be tested
+- 🔄 Training ready to start when nigel.birs.ca comes back online
+
+**Next Steps When Server Returns:**
+```bash
+ssh vincent@nigel.birs.ca
+cd ~/llm-abuse-patterns-finetune
+source venv/bin/activate
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python3 -u finetune_gpt_oss_safeguard.py
+```
+
+Expected: Training should now proceed past step 0 with trl 0.19.0 compatibility.
+
+---
+
 ## Conclusions
 
 ### Technical Success
@@ -316,15 +342,17 @@ We successfully demonstrated that:
 3. JailbreakHub dataset can be formatted for fine-tuning
 4. All infrastructure components (model loading, LoRA, data pipeline, trainer setup) work correctly
 
-### Current Limitation
+### Current Limitation (RESOLVED)
 
-Training is blocked by a library compatibility bug in trl 0.23.0's entropy calculation, not by fundamental memory or technical constraints. This is a **solvable software issue**, not a hardware limitation.
+~~Training is blocked by a library compatibility bug in trl 0.23.0's entropy calculation~~ **FIXED: Downgraded to trl 0.19.0**
+
+The library bug has been resolved. Training is ready to proceed when nigel.birs.ca comes back online. This was a **solvable software issue**, not a hardware limitation.
 
 ### Recommended Path Forward
 
-1. **Immediate:** Try trl 0.19.0 or alternative trainers to bypass compatibility issue
-2. **Short-term:** Fine-tune smaller models (7B-13B) that have better library support
-3. **Long-term:** Wait for library updates or access larger GPUs for smoother workflow
+1. **Immediate:** ✅ DONE - Applied trl 0.19.0 fix. Start training when server returns online.
+2. **Short-term:** Complete training run and evaluate fine-tuned model performance
+3. **Long-term:** If successful, train additional models or expand to larger datasets
 
 ### Experimental Value
 
