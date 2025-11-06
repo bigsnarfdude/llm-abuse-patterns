@@ -35,11 +35,26 @@ llm-abuse-patterns/
 │   ├── test_pattern_database.py
 │   ├── test_guardrails.py
 │   └── test_all.py                    # Runs all tests
+├── experiments/                       # Experimental research scripts
+│   ├── jailbreak-evals/               # Jailbreak evaluation experiments
+│   │   ├── 05_jailbreakhub_evaluation.py
+│   │   ├── 06_jailbreakhub_safeguard_eval.py
+│   │   └── benchmark_integration_plan.md
+│   ├── fine-tuning/                   # Fine-tuning experiments
+│   │   ├── FINETUNING_EXPERIMENT.md
+│   │   ├── finetune_gpt_oss_safeguard.py
+│   │   └── prepare_finetune_dataset.py
+│   ├── m2-llm-tests/                  # M2 Mac performance tests
+│   └── model-comparison/              # Model comparison experiments
 ├── docs/                              # Documentation
 │   ├── CODE_REVIEW_SUMMARY.md         # Security audit results
 │   ├── REMEDIATION_PLAN.md            # Detailed improvement plan
 │   ├── IMPROVEMENTS.md                # Change log
-│   └── QUICK_REFERENCE.md             # Developer quick reference
+│   ├── QUICK_REFERENCE.md             # Developer quick reference
+│   ├── JAILBREAK_EVALUATION_COMPARISON.md  # Evaluation methodology
+│   ├── MODEL_COMPARISON.md            # Model comparison analysis
+│   ├── FINETUNING_FINDINGS.md         # Fine-tuning research results
+│   └── CLEANUP_SUMMARY.md             # Repository cleanup history
 └── requirements.txt                   # Python dependencies
 ```
 
@@ -145,7 +160,7 @@ Evaluated on **JailbreakHub dataset** (400 prompts: 200 real jailbreaks, 200 ben
 **Model:** [gpt-oss-safeguard:latest](https://ollama.com/library/gpt-oss-safeguard) - Official OpenAI release (+9% recall vs community variant)
 **Dataset:** [walledai/JailbreakHub](https://huggingface.co/datasets/walledai/JailbreakHub) - Real in-the-wild jailbreaks from Reddit/Discord (2022-2023)
 **Details:** See `docs/JAILBREAK_EVALUATION_COMPARISON.md` for methodology and `docs/MODEL_COMPARISON.md` for model comparison
-**Evaluation Scripts:** `05_jailbreakhub_evaluation.py`, `06_jailbreakhub_safeguard_eval.py`
+**Evaluation Scripts:** `experiments/jailbreak-evals/05_jailbreakhub_evaluation.py`, `experiments/jailbreak-evals/06_jailbreakhub_safeguard_eval.py`
 
 ## Pattern Database
 
@@ -204,6 +219,10 @@ SQLite-based pattern storage is provided in `src/llm_abuse_patterns/db_persisten
 - **docs/REMEDIATION_PLAN.md** - Detailed improvement plan with code examples
 - **docs/QUICK_REFERENCE.md** - Developer quick reference and best practices
 - **docs/IMPROVEMENTS.md** - Recent changes and version history
+- **docs/JAILBREAK_EVALUATION_COMPARISON.md** - Evaluation methodology and results
+- **docs/MODEL_COMPARISON.md** - Analysis comparing different safeguard models
+- **docs/FINETUNING_FINDINGS.md** - Comprehensive fine-tuning research results
+- **docs/CLEANUP_SUMMARY.md** - Repository cleanup and organization history
 
 ## Resources
 
@@ -237,10 +256,10 @@ We explored fine-tuning GPT-OSS Safeguard models on jailbreak detection using Un
 - ⚠️ Training blocked by trl 0.23.0 library compatibility bug
 
 **Documentation:**
-- `FINETUNING_EXPERIMENT.md` - Setup guide and configuration
+- `experiments/fine-tuning/FINETUNING_EXPERIMENT.md` - Setup guide and configuration
 - `docs/FINETUNING_FINDINGS.md` - Comprehensive experimental results
-- `prepare_finetune_dataset.py` - Dataset preparation pipeline
-- `finetune_gpt_oss_safeguard.py` - QLoRA training script
+- `experiments/fine-tuning/prepare_finetune_dataset.py` - Dataset preparation pipeline
+- `experiments/fine-tuning/finetune_gpt_oss_safeguard.py` - QLoRA training script
 
 **Status**: Research findings documented. Demonstrates feasibility of fine-tuning 20B models on consumer GPUs. Training pending library fix.
 
