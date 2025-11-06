@@ -225,7 +225,7 @@ SQLite-based pattern storage is provided in `src/llm_abuse_patterns/db_persisten
 We explored fine-tuning GPT-OSS Safeguard models on jailbreak detection using Unsloth + QLoRA:
 
 **Experiment Setup:**
-- **Hardware**: RTX 4070 Ti SUPER (16GB VRAM) on nigel.birs.ca
+- **Hardware**: RTX 4070 Ti SUPER (16GB VRAM)
 - **Model**: openai/gpt-oss-20b with 4-bit quantization
 - **Dataset**: 400 JailbreakHub examples (320 train, 80 val)
 - **Memory**: 11.67GB model + QLoRA (7.96M trainable params, 0.07% of total)

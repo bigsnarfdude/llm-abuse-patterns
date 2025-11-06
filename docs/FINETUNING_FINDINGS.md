@@ -11,19 +11,18 @@ We attempted to fine-tune OpenAI's GPT-OSS 20B model on the JailbreakHub dataset
 ## Experimental Setup
 
 ### Hardware
-- **Server:** nigel.birs.ca
 - **GPU:** NVIDIA RTX 4070 Ti SUPER
-- **VRAM:** 16GB (15.58GB available)
-- **RAM:** 62GB
-- **CUDA:** 12.8
-- **Python:** 3.12.3
+- **VRAM:** 16GB available
+- **RAM:** 64GB
+- **CUDA:** 12.x
+- **Python:** 3.12
 
 ### Software Stack
 - **Unsloth:** 2025.11.1 (fine-tuning framework)
-- **PyTorch:** 2.8.0+cu128
-- **Transformers:** 4.57.1
+- **PyTorch:** 2.8.0+cu12x
+- **Transformers:** 4.57+
 - **TRL:** 0.23.0 (SFTTrainer)
-- **bitsandbytes:** 0.48.2 (4-bit quantization)
+- **bitsandbytes:** 0.48+ (4-bit quantization)
 
 ### Dataset
 - **Source:** JailbreakHub (walledai/JailbreakHub)
@@ -268,7 +267,7 @@ def format_prompts(examples):
 - `FINETUNING_FINDINGS.md` - This document (✅ Complete)
 
 ### Logs
-- `finetune.log` - Full training attempt logs (✅ Available on nigel)
+- `finetune.log` - Full training attempt logs (✅ Available on server)
 
 ---
 
@@ -277,7 +276,7 @@ def format_prompts(examples):
 ### Full Setup Command
 
 ```bash
-# On nigel.birs.ca
+# On GPU server
 cd ~/llm-abuse-patterns-finetune
 
 # Install dependencies
@@ -310,19 +309,19 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 
 **Fix Applied:**
 ```bash
-# On nigel.birs.ca
+# On GPU server
 pip install trl==0.19.0 --force-reinstall
 ```
 
 **Status:**
 - ✅ Successfully downgraded trl 0.23.0 → 0.19.0
 - ✅ Environment ready for training
-- ⚠️ Server became unreachable before training could be tested
-- 🔄 Training ready to start when nigel.birs.ca comes back online
+- ⚠️ Server became temporarily unreachable before training could be tested
+- 🔄 Training ready to start when server is available
 
-**Next Steps When Server Returns:**
+**Next Steps When Server Available:**
 ```bash
-ssh vincent@nigel.birs.ca
+ssh user@gpu-server
 cd ~/llm-abuse-patterns-finetune
 source venv/bin/activate
 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python3 -u finetune_gpt_oss_safeguard.py
@@ -346,7 +345,7 @@ We successfully demonstrated that:
 
 ~~Training is blocked by a library compatibility bug in trl 0.23.0's entropy calculation~~ **FIXED: Downgraded to trl 0.19.0**
 
-The library bug has been resolved. Training is ready to proceed when nigel.birs.ca comes back online. This was a **solvable software issue**, not a hardware limitation.
+The library bug has been resolved. Training is ready to proceed when server is available. This was a **solvable software issue**, not a hardware limitation.
 
 ### Recommended Path Forward
 
@@ -375,7 +374,7 @@ This work provides valuable insights into:
 - **Total:** 5.5 hours
 
 **Date:** November 5, 2025
-**Hardware:** nigel.birs.ca (RTX 4070 Ti SUPER, 16GB VRAM)
+**Hardware:** GPU server (RTX 4070 Ti SUPER, 16GB VRAM)
 **Status:** Experimental findings documented, training pending library fix
 
 ---

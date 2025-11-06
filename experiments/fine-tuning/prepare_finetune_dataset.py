@@ -177,7 +177,7 @@ def main():
     print("✅ Dataset preparation complete!")
     print()
     print("Next steps:")
-    print("1. Upload datasets to nigel server")
+    print("1. Upload datasets to GPU server")
     print("2. Run fine-tuning script with QLoRA")
     print("3. Evaluate fine-tuned model on same 400-prompt test set")
 

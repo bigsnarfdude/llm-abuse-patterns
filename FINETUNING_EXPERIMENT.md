@@ -16,15 +16,14 @@ Fine-tune OpenAI's GPT-OSS Safeguard 20B model on JailbreakHub dataset using Uns
 
 ## Hardware Setup
 
-**Server:** nigel.birs.ca
 **GPU:** NVIDIA RTX 4070 Ti SUPER (16GB VRAM)
-**RAM:** 62GB
-**CUDA:** 12.8
-**Python:** 3.12.3
+**RAM:** 64GB
+**CUDA:** 12.x
+**Python:** 3.12
 
 **Requirements Met:**
 - ✅ 16GB VRAM (exceeds 14GB requirement for QLoRA)
-- ✅ CUDA 12.8 support
+- ✅ CUDA 12.x support
 - ✅ Sufficient RAM for data loading
 
 ---
@@ -33,10 +32,10 @@ Fine-tune OpenAI's GPT-OSS Safeguard 20B model on JailbreakHub dataset using Uns
 
 **Fine-tuning Framework:**
 - Unsloth 2025.11.1 (2x faster fine-tuning)
-- PyTorch 2.8.0 with CUDA 12.8
-- Transformers 4.57.1
-- bitsandbytes 0.48.2 (4-bit quantization)
-- xFormers 0.0.32.post2 (memory optimization)
+- PyTorch 2.8+ with CUDA 12.x
+- Transformers 4.57+
+- bitsandbytes 0.48+ (4-bit quantization)
+- xFormers 0.0.32+ (memory optimization)
 
 **Installed in:** `~/llm-abuse-patterns-finetune/venv/`
 
@@ -93,7 +92,7 @@ Fine-tune OpenAI's GPT-OSS Safeguard 20B model on JailbreakHub dataset using Uns
 
 ---
 
-## Files on Nigel Server
+## Files on GPU Server
 
 **Location:** `~/llm-abuse-patterns-finetune/`
 
@@ -115,7 +114,7 @@ llm-abuse-patterns-finetune/
 ### 1. Verify Setup
 
 ```bash
-ssh vincent@nigel.birs.ca
+ssh user@gpu-server
 cd ~/llm-abuse-patterns-finetune
 source venv/bin/activate
 
@@ -128,7 +127,7 @@ python3 -c "import torch, unsloth; print(f'PyTorch: {torch.__version__}'); print
 
 **Expected output:**
 ```
-PyTorch: 2.8.0+cu128
+PyTorch: 2.8.0+cu12x
 CUDA: True
 GPU: NVIDIA GeForce RTX 4070 Ti SUPER
 ```
@@ -240,7 +239,7 @@ Training slower than expected:
 ### Model Loading Fails
 
 If model download fails:
-1. Check internet connection on nigel
+1. Check internet connection on server
 2. Manually download model: `huggingface-cli download openai/gpt-oss-safeguard-20b`
 3. Point script to local path
 
@@ -267,7 +266,7 @@ If model download fails:
 ### Training Cost
 - **Time:** 2-3 hours (one-time)
 - **Electricity:** Negligible (server already running)
-- **Compute:** Free (nigel.birs.ca available for experiments)
+- **Compute:** Uses available GPU server infrastructure
 
 ### Deployment Cost
 - **Storage:** ~5-10GB for LoRA adapters
@@ -311,7 +310,7 @@ This experiment demonstrates:
 ## Timeline
 
 1. **Setup (Completed):** 1 hour
-   - ✅ Installed Unsloth on nigel
+   - ✅ Installed Unsloth on GPU server
    - ✅ Prepared dataset (320 train, 80 val)
    - ✅ Created fine-tuning script
 
