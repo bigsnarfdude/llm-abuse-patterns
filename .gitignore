@@ -209,3 +209,13 @@ deprecated/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Experiment results and data files
+experiments/**/checkpoints/
+experiments/**/*.txt
+experiments/**/*.json
+experiments/**/*.log
+experiments/**/logs/
+!experiments/**/*.md
+!experiments/**/*.py
+!experiments/**/*.sh
