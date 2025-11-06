@@ -116,7 +116,7 @@ python run_tests.py
 
 ## Detection Methods
 
-### 1. Heuristic Detection (Real Implementation ✅)
+### 1. Heuristic Detection
 Fast keyword and pattern matching for common jailbreak attempts.
 
 - **Latency:** 0.2ms (median on M2 Mac)
@@ -126,7 +126,7 @@ Fast keyword and pattern matching for common jailbreak attempts.
 - **Best for:** First-layer filtering, instant blocking of obvious attacks
 - **Implementation:** `01_safeguard_pattern_detector.py`
 
-### 2. Real LLM Detection (Production-Grade ✅)
+### 2. Real LLM Detection
 Deep contextual reasoning using official GPT-OSS Safeguard running locally on M2 Mac.
 
 - **Latency:** 11.1s (median inference on 13GB model with M2 GPU)
@@ -137,7 +137,7 @@ Deep contextual reasoning using official GPT-OSS Safeguard running locally on M2
 - **Implementation:** `src/llm_abuse_patterns/safeguard.py`
 - **Requires:** Ollama with `gpt-oss-safeguard:latest` model (official release)
 
-### 3. 🏆 Layered Defense (Heuristic → LLM)
+### 3. Layered Defense (Heuristic → LLM)
 Two-layer approach: instant heuristic filtering followed by LLM analysis for passed prompts.
 
 - **Latency:** 9.1s (median, varies based on heuristic filtering)
