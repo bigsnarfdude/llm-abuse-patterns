@@ -98,7 +98,7 @@ False Positives:   289  (false alarms)
 
 #### Option 1: Full Dataset Evaluation (Overnight on Server)
 ```bash
-# Run on nigel.birs.ca (GPU server)
+# Run on your-gpu-server (GPU server)
 nohup python 08_full_dataset_llm_eval.py --model safeguard > full_eval.log 2>&1 &
 
 # Monitor progress
@@ -112,7 +112,7 @@ tail -f full_eval.log
 - Publication-ready results
 
 **Requirements:**
-- nigel.birs.ca server running
+- your-gpu-server server running
 - Ollama with gpt-oss-safeguard:latest
 - ~48 hours uninterrupted runtime
 - ~200GB available storage
@@ -155,12 +155,12 @@ python 08_full_dataset_llm_eval.py --model safeguard --batch-size 1000 --checkpo
 
 ---
 
-## Deployment: Running on Nigel Server
+## Deployment: Running on GPU Server Server
 
 ### Prerequisites
 ```bash
-# SSH to nigel
-ssh vincent@nigel.birs.ca
+# SSH to GPU server
+ssh your-gpu-server
 
 # Check Ollama installation
 ollama list
@@ -341,8 +341,8 @@ Each evaluation will produce:
 - [x] Write execution plan
 - [x] Create heuristic baseline
 
-### Phase 2: Server Setup (When Nigel Available)
-- [ ] SSH to nigel.birs.ca
+### Phase 2: Server Setup (When GPU Server Available)
+- [ ] SSH to your-gpu-server
 - [ ] Verify Ollama + GPU setup
 - [ ] Pull gpt-oss-safeguard:latest model
 - [ ] Clone/sync repository
@@ -387,7 +387,7 @@ The difference between 50/50 balanced and 9.3/90.7 real distribution is critical
 - GPU with 24GB+ VRAM (RTX 4090, A5000)
 - 64GB system RAM
 - NVMe SSD storage
-- Dedicated server (nigel.birs.ca)
+- Dedicated server (your-gpu-server)
 
 ### Cost-Benefit Analysis
 **Without full evaluation:**
@@ -409,7 +409,7 @@ The difference between 50/50 balanced and 9.3/90.7 real distribution is critical
 For questions about this experiment:
 - **Repository**: llm-abuse-patterns
 - **Experiment**: experiments/full-dataset-eval/
-- **Status**: Phase 1 complete, Phase 2 pending nigel availability
+- **Status**: Phase 1 complete, Phase 2 pending GPU server availability
 
 ---
 
@@ -423,4 +423,4 @@ For questions about this experiment:
 ---
 
 **Last Updated**: November 6, 2025
-**Status**: Ready for nigel server deployment
+**Status**: Ready for GPU server deployment

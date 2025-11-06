@@ -195,7 +195,7 @@ Based on sample results and heuristic patterns:
    - Handle timeouts gracefully
    - Save progress every 1,000 prompts
 
-2. **Setup nigel server**
+2. **Setup GPU server**
    - Verify Ollama + safeguard model
    - Test on 100-prompt sample
    - Estimate real runtime
@@ -227,7 +227,7 @@ experiments/full-dataset-eval/
 ├── 07_heuristic_full_dataset.py   # ✅ Heuristic evaluation script
 ├── heuristic_full_15140.txt       # ✅ Heuristic results
 ├── 08_full_dataset_llm_eval.py    # ⏳ To create - LLM evaluation
-└── run_on_nigel.sh                # ⏳ To create - Deployment script
+└── run_on_server.sh                # ⏳ To create - Deployment script
 ```
 
 ---
@@ -265,4 +265,4 @@ Before considering this experiment complete:
 ---
 
 **Last Updated**: November 6, 2025
-**Next Action**: Create `08_full_dataset_llm_eval.py` when nigel is available
+**Next Action**: Create `08_full_dataset_llm_eval.py` when GPU server is available

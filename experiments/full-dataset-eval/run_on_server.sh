@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# Full Dataset Evaluation - Nigel Server Deployment Script
-# ---------------------------------------------------------
-# Run complete JailbreakHub evaluation on nigel.birs.ca
+# Full Dataset Evaluation - GPU Server Deployment Script
+# --------------------------------------------------------
+# Run complete JailbreakHub evaluation on GPU server with Ollama
 #
 # Usage:
-#   ./run_on_nigel.sh [full|stratified|jailbreaks|test]
+#   ./run_on_server.sh [full|stratified|jailbreaks|test]
 #
 # Modes:
 #   full        - Complete 15,140 dataset (~46 hours)
@@ -29,28 +29,17 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo "========================================="
-echo "Full Dataset Evaluation - Nigel Deployment"
+echo "Full Dataset Evaluation - GPU Server"
 echo "========================================="
 echo ""
 echo "Mode: $MODE"
 echo "Model: $MODEL"
+echo "Server: $(hostname)"
 echo ""
 
 # Create directories
 mkdir -p $LOG_DIR
 mkdir -p $CHECKPOINT_DIR
-
-# Check if we're on nigel
-if [[ $(hostname) != *"nigel"* ]]; then
-    echo -e "${RED}⚠️  WARNING: Not running on nigel.birs.ca${NC}"
-    echo "This script is designed for nigel server."
-    echo ""
-    read -p "Continue anyway? (y/N) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-fi
 
 # Check Ollama
 echo "Checking Ollama..."
