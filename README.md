@@ -295,16 +295,3 @@ This repository is for **research and educational purposes only**.
 ## License
 
 MIT License - See LICENSE file for details
-
-## Contributing
-
-This is an experimental research project. Issues and pull requests are welcome for:
-- New jailbreak patterns (with detection strategies)
-- Performance improvements
-- Bug fixes
-- Documentation improvements
-- Test coverage
-
-## Contact
-
-For questions about this research, please open an issue on GitHub.
