@@ -119,20 +119,20 @@ python run_tests.py
 ### 1. Heuristic Detection
 Fast keyword and pattern matching for common jailbreak attempts.
 
-- **Latency:** 0.2ms (median on M2 Mac)
-- **Precision:** 96.0% (very few false alarms)
-- **Recall:** 24.0% (misses 76% of subtle jailbreaks)
-- **F1 Score:** 38.4%
+- **Latency:** <0.1ms (median on RTX 4070 Ti Super)
+- **Precision:** 94.4% (very few false alarms)
+- **Recall:** 25.5% (misses 74.5% of subtle jailbreaks)
+- **F1 Score:** 40.2%
 - **Best for:** First-layer filtering, instant blocking of obvious attacks
 - **Implementation:** `01_safeguard_pattern_detector.py`
 
 ### 2. Real LLM Detection
-Deep contextual reasoning using official GPT-OSS Safeguard running locally on M2 Mac.
+Deep contextual reasoning using official GPT-OSS Safeguard running locally on RTX 4070 Ti Super GPU.
 
-- **Latency:** 11.1s (median inference on 13GB model with M2 GPU)
-- **Precision:** 87.3% (balanced false alarm rate)
-- **Recall:** 69.0% (catches 69% of real jailbreaks)
-- **F1 Score:** 77.1%
+- **Latency:** 1.9s (median inference on 20B model with RTX 4070 Ti Super)
+- **Precision:** 88.4% (balanced false alarm rate)
+- **Recall:** 61.0% (catches 61% of real jailbreaks)
+- **F1 Score:** 72.2%
 - **Best for:** Second-layer analysis after heuristic pass
 - **Implementation:** `src/llm_abuse_patterns/safeguard.py`
 - **Requires:** Ollama with `gpt-oss-safeguard:latest` model (official release)
@@ -140,27 +140,31 @@ Deep contextual reasoning using official GPT-OSS Safeguard running locally on M2
 ### 3. Layered Defense (Heuristic → LLM)
 Two-layer approach: instant heuristic filtering followed by LLM analysis for passed prompts.
 
-- **Latency:** 9.1s (median, varies based on heuristic filtering)
-- **Precision:** 84.0% (balanced false alarm rate)
-- **Recall:** 68.0% (catches 68% of jailbreaks)
-- **F1 Score:** 75.1% (strong overall performance)
-- **Efficiency:** 12.5% blocked instantly by heuristic (<1ms)
-- **Cost Savings:** LLM only processes 87.5% of traffic, 17% faster with official model
+- **Latency:** 1.6s (median, varies based on heuristic filtering)
+- **Precision:** 85.9% (balanced false alarm rate)
+- **Recall:** 67.0% (catches 67% of jailbreaks)
+- **F1 Score:** 75.3% (strong overall performance)
+- **Efficiency:** 13.5% blocked instantly by heuristic (<1ms)
+- **Cost Savings:** LLM only processes 86.5% of traffic
 
 ### Academic Evaluation Results
 
-Evaluated on **JailbreakHub dataset** (400 prompts: 200 real jailbreaks, 200 benign) using **official gpt-oss-safeguard:latest** model:
+Evaluated on **JailbreakHub dataset** (400 prompts: 200 real jailbreaks, 200 benign) using **official gpt-oss-safeguard:20b** model on RTX 4070 Ti Super GPU:
 
 | Method | Precision | Recall | F1 Score | Accuracy | Median Latency |
 |--------|-----------|--------|----------|----------|----------------|
-| Heuristic | 96.0% | 24.0% | 38.4% | 61.5% | 0.2ms |
-| **Real-LLM** | **87.3%** | **69.0%** | **77.1%** | **79.5%** | 11.1s |
-| Layered | 84.0% | 68.0% | 75.1% | 77.5% | 9.1s |
+| Heuristic | 94.4% | 25.5% | 40.2% | 62.0% | <0.1ms |
+| **Real-LLM** | **88.4%** | **61.0%** | **72.2%** | **76.5%** | 1.9s |
+| Layered | 85.9% | 67.0% | 75.3% | 78.0% | 1.6s |
 
-**Model:** [gpt-oss-safeguard:latest](https://ollama.com/library/gpt-oss-safeguard) - Official OpenAI release (+9% recall vs community variant)
+**Model:** [gpt-oss-safeguard:latest](https://ollama.com/library/gpt-oss-safeguard) - Official OpenAI release (20B parameters)
+**Hardware:** RTX 4070 Ti Super GPU (16GB VRAM) - 5.8x faster than M2 Mac
 **Dataset:** [walledai/JailbreakHub](https://huggingface.co/datasets/walledai/JailbreakHub) - Real in-the-wild jailbreaks from Reddit/Discord (2022-2023)
+**Evaluation Date:** November 11, 2025 - Fixed implementation using proper Harmony response format
 **Details:** See `docs/JAILBREAK_EVALUATION_COMPARISON.md` for methodology and `docs/MODEL_COMPARISON.md` for model comparison
 **Evaluation Scripts:** `experiments/jailbreak-evals/05_jailbreakhub_evaluation.py`, `experiments/jailbreak-evals/06_jailbreakhub_safeguard_eval.py`
+
+**Note:** Previous stats were based on broken Harmony format implementation (forced JSON output). Current results use correct Harmony parsing that extracts both `content` (classification) and `thinking` (reasoning) channels from the model. Full 5905-sample evaluation in progress for more robust baseline.
 
 ## Pattern Database
 
