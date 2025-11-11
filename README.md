@@ -120,19 +120,19 @@ python run_tests.py
 Fast keyword and pattern matching for common jailbreak attempts.
 
 - **Latency:** <0.1ms (median on RTX 4070 Ti Super)
-- **Precision:** 94.4% (very few false alarms)
-- **Recall:** 25.5% (misses 74.5% of subtle jailbreaks)
-- **F1 Score:** 40.2%
+- **Precision:** 80.8% (few false alarms on full dataset)
+- **Recall:** 26.1% (misses 73.9% of subtle jailbreaks)
+- **F1 Score:** 39.5%
 - **Best for:** First-layer filtering, instant blocking of obvious attacks
 - **Implementation:** `01_safeguard_pattern_detector.py`
 
 ### 2. Real LLM Detection
 Deep contextual reasoning using official GPT-OSS Safeguard running locally on RTX 4070 Ti Super GPU.
 
-- **Latency:** 1.9s (median inference on 20B model with RTX 4070 Ti Super)
-- **Precision:** 88.4% (balanced false alarm rate)
-- **Recall:** 61.0% (catches 61% of real jailbreaks)
-- **F1 Score:** 72.2%
+- **Latency:** 1.6s (median inference on 20B model with RTX 4070 Ti Super)
+- **Precision:** 62.6% (moderate false alarm rate - prioritizes catching attacks)
+- **Recall:** 68.5% (catches 68.5% of real jailbreaks)
+- **F1 Score:** 65.4%
 - **Best for:** Second-layer analysis after heuristic pass
 - **Implementation:** `src/llm_abuse_patterns/safeguard.py`
 - **Requires:** Ollama with `gpt-oss-safeguard:latest` model (official release)
@@ -140,31 +140,32 @@ Deep contextual reasoning using official GPT-OSS Safeguard running locally on RT
 ### 3. Layered Defense (Heuristic → LLM)
 Two-layer approach: instant heuristic filtering followed by LLM analysis for passed prompts.
 
-- **Latency:** 1.6s (median, varies based on heuristic filtering)
-- **Precision:** 85.9% (balanced false alarm rate)
-- **Recall:** 67.0% (catches 67% of jailbreaks)
-- **F1 Score:** 75.3% (strong overall performance)
-- **Efficiency:** 13.5% blocked instantly by heuristic (<1ms)
-- **Cost Savings:** LLM only processes 86.5% of traffic
+- **Latency:** 1.5s (median, varies based on heuristic filtering)
+- **Precision:** 61.5% (moderate false alarm rate)
+- **Recall:** 69.8% (catches 69.8% of jailbreaks - best recall)
+- **F1 Score:** 65.4% (balanced overall performance)
+- **Efficiency:** 7.7% blocked instantly by heuristic (<1ms)
+- **Cost Savings:** LLM only processes 92.3% of traffic
 
 ### Academic Evaluation Results
 
-Evaluated on **JailbreakHub dataset** (400 prompts: 200 real jailbreaks, 200 benign) using **official gpt-oss-safeguard:20b** model on RTX 4070 Ti Super GPU:
+Evaluated on **JailbreakHub dataset** (5,905 prompts: ALL 1,405 real jailbreaks + 4,500 benign) using **official gpt-oss-safeguard:20b** model on RTX 4070 Ti Super GPU:
 
 | Method | Precision | Recall | F1 Score | Accuracy | Median Latency |
 |--------|-----------|--------|----------|----------|----------------|
-| Heuristic | 94.4% | 25.5% | 40.2% | 62.0% | <0.1ms |
-| **Real-LLM** | **88.4%** | **61.0%** | **72.2%** | **76.5%** | 1.9s |
-| Layered | 85.9% | 67.0% | 75.3% | 78.0% | 1.6s |
+| Heuristic | 80.8% | 26.1% | 39.5% | 80.9% | <0.1ms |
+| **Real-LLM** | **62.6%** | **68.5%** | **65.4%** | **82.8%** | 1.6s |
+| Layered | 61.5% | **69.8%** | 65.4% | 82.4% | 1.5s |
 
 **Model:** [gpt-oss-safeguard:latest](https://ollama.com/library/gpt-oss-safeguard) - Official OpenAI release (20B parameters)
 **Hardware:** RTX 4070 Ti Super GPU (16GB VRAM) - 5.8x faster than M2 Mac
 **Dataset:** [walledai/JailbreakHub](https://huggingface.co/datasets/walledai/JailbreakHub) - Real in-the-wild jailbreaks from Reddit/Discord (2022-2023)
 **Evaluation Date:** November 11, 2025 - Fixed implementation using proper Harmony response format
+**Sample Size:** 5,905 prompts (ALL 1,405 jailbreaks + 4,500 benign) - Complete jailbreak dataset
 **Details:** See `docs/JAILBREAK_EVALUATION_COMPARISON.md` for methodology and `docs/MODEL_COMPARISON.md` for model comparison
 **Evaluation Scripts:** `experiments/jailbreak-evals/05_jailbreakhub_evaluation.py`, `experiments/jailbreak-evals/06_jailbreakhub_safeguard_eval.py`
 
-**Note:** Previous stats were based on broken Harmony format implementation (forced JSON output). Current results use correct Harmony parsing that extracts both `content` (classification) and `thinking` (reasoning) channels from the model. Full 5905-sample evaluation in progress for more robust baseline.
+**Note:** Previous stats were based on broken Harmony format implementation (forced JSON output causing 91% of jailbreaks to be missed). Current results use correct Harmony parsing that extracts both `content` (classification) and `thinking` (reasoning) channels from the model. These are production-ready baseline numbers using the complete JailbreakHub jailbreak dataset.
 
 ## Pattern Database
 
