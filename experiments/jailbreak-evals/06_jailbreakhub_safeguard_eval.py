@@ -48,22 +48,33 @@ class HeuristicDetector:
     """Rule-based detector using pattern matching"""
 
     def __init__(self):
+        # Expanded patterns for better coverage
         self.jailbreak_patterns = [
             r'\bdan\b|\bdo anything now\b',
-            r'ignore (previous|all|your) (instructions?|rules?|guidelines?)',
-            r'you are (now|about to|going to) (be|become|act as|roleplay)',
-            r'(pretend|act|roleplay) (to be|as|like) (a|an)',
-            r'(simulation|scenario) (within|inside) (a|another) (simulation|scenario)',
-            r'bypass|jailbreak|unrestricted|uncensored',
-            r'(system|admin|developer|debug) mode',
+            r'ignore (previous|all|your|prior|earlier) (instructions?|rules?|guidelines?|directives?)',
+            r'you are (now|about to|going to|hereby) (be|become|act as|roleplay|playing)',
+            r'(pretend|act|roleplay|behave|imagine) (to be|as|like|you are) (a|an|that)',
+            r'(simulation|scenario|game|story) (within|inside|nested in) (a|another) (simulation|scenario)',
+            r'bypass|jailbreak|unrestricted|uncensored|unfiltered|override',
+            r'(system|admin|developer|debug|god) mode',
             r'<\|.*?\|>',  # Special tokens
             r'[A-Za-z0-9+/]{30,}={0,2}',  # Base64
+            r'forget (all|your|previous) (instructions?|rules?|guidelines?)',
+            r'(disregard|override|ignore) (safety|ethics|guidelines|restrictions)',
+            r'(write|say|tell) (anything|whatever|something) (you want|forbidden)',
+            r'no (restrictions?|limits?|rules?|filters?|guidelines?)',
+            r'you (can|are able to|have permission to) do anything',
+            r'evil (ai|assistant|bot|chatbot)',
         ]
 
+        # Expanded keywords for better recall
         self.jailbreak_keywords = [
             'dan', 'ignore instructions', 'bypass', 'jailbreak',
             'uncensored', 'unrestricted', 'roleplay as', 'pretend to be',
-            'simulation', 'developer mode', 'system prompt', 'prompt injection'
+            'simulation', 'developer mode', 'system prompt', 'prompt injection',
+            'override', 'disregard', 'forget instructions', 'unfiltered',
+            'no restrictions', 'no limits', 'no rules', 'evil ai',
+            'do anything', 'say anything', 'god mode', 'admin mode'
         ]
 
     def detect(self, prompt: str) -> DetectionResult:
@@ -80,12 +91,12 @@ class HeuristicDetector:
         # Keyword matching
         keyword_matches = [kw for kw in self.jailbreak_keywords if kw in prompt_lower]
 
-        # Scoring
-        pattern_score = min(len(pattern_matches) * 0.3, 1.0)
-        keyword_score = min(len(keyword_matches) * 0.15, 1.0)
+        # Improved scoring - more weight per match for better recall
+        pattern_score = min(len(pattern_matches) * 0.4, 1.0)  # Increased from 0.3
+        keyword_score = min(len(keyword_matches) * 0.2, 1.0)  # Increased from 0.15
 
         confidence = min(pattern_score + keyword_score, 1.0)
-        is_jailbreak = confidence >= 0.5
+        is_jailbreak = confidence >= 0.35  # Lowered from 0.5 for better recall
 
         latency = (time.time() - start) * 1000
 
