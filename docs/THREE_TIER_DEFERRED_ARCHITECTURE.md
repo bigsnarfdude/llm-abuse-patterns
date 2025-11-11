@@ -289,13 +289,84 @@ class RetroactiveHandler:
 **Impact:** Brief window of abuse
 **Mitigation:** Conservative Layer 2 thresholds, fast batch cycles
 
+## Critical Analysis: Is 120B Worth It?
+
+### Reality Check on 120B Benefits
+
+**Key Insight:** Since 20B and 120B share the same architecture and training data, 120B won't "magically catch" what 20B confidently misses. The real value is in **confidence calibration** on uncertain cases, not fundamentally different detection.
+
+**Expected Performance:**
+- 120B agrees with 20B: **85%** of deferred cases (redundant)
+- 120B provides better calibration: **10%** (marginal value)
+- 120B catches truly missed jailbreak: **5%** (rare)
+
+**ROI Analysis:**
+- Cost: 5% traffic × 3x compute = **15% extra compute**
+- Benefit: Catch **0.5-1%** more jailbreaks (5% × 10%)
+- **Verdict: Marginal gain, likely not worth complexity**
+
+### Better Alternatives to 120B Batch Processing
+
+#### Option A: Active Learning (Recommended)
+```python
+# Instead of 120B batch, use human feedback
+1. Collect uncertain cases (20B confidence 0.4-0.6)
+2. Human annotate 100 prompts/week (~$20)
+3. Fine-tune 20B on hard examples
+4. Continuously improve without 120B
+
+Benefits:
+- Actually improves 20B (not redundant check)
+- Costs less than 120B inference
+- Adapts to new attack patterns
+```
+
+#### Option B: Ensemble of Smaller Models
+```python
+# Run 2-3 smaller models in parallel
+3B + 3B + 3B = 9B total (vs 120B)
+- Vote on uncertain cases
+- Faster, cheaper, similar accuracy
+- Diversity helps more than size
+```
+
+#### Option C: Just Trust 20B
+```python
+# 68.5% recall is already production-ready
+- Focus on improving heuristics (cheaper)
+- Use 120B for offline research only
+- Human review for appeals/edge cases
+```
+
+### Revised Deferred Strategy
+
+**Narrow the defer queue to genuinely uncertain cases:**
+
+```python
+# OLD: Defer 0.3-0.85 confidence (too broad)
+if 0.3 <= confidence <= 0.85:
+    defer_to_120b()  # 5% of traffic
+
+# NEW: Only defer high uncertainty (0.4-0.6)
+if 0.4 <= confidence <= 0.6:
+    defer_to_active_learning()  # ~2% of traffic
+```
+
+**What qualifies for deferred review:**
+1. ✅ 20B confidence 0.4-0.6 (genuinely uncertain)
+2. ✅ Heuristic-LLM disagreement (needs tiebreaker)
+3. ✅ Complex context (>500 tokens, 120B has capacity)
+4. ❌ High 20B confidence (>0.8) - trust it
+5. ❌ Obvious cases caught by heuristic - no need
+6. ❌ Clear benign (<0.2) - trust it
+
 ## Open Questions
 
 1. **Threshold Tuning:** What confidence ranges minimize defer rate while maintaining accuracy?
-2. **Batch Frequency:** Process every hour, every 1000 prompts, or dynamic based on load?
+2. **Active Learning Pipeline:** How many weekly annotations needed for continuous improvement?
 3. **Retroactive Severity:** Which actions are appropriate for delayed detection?
-4. **120B Value:** Does 120B significantly outperform 20B on edge cases?
-5. **DistilBERT Addition:** Would a fast ML layer between heuristic and 20B reduce defer rate?
+4. **120B Validation:** Empirically test 120B vs 20B on uncertain cases before deployment
+5. **Ensemble vs 120B:** Would 3×3B ensemble outperform single 120B on edge cases?
 
 ## Related Work
 
