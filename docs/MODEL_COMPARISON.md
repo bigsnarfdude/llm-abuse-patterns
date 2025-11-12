@@ -163,15 +163,59 @@ Both models benefit from heuristic pre-filtering:
 
 ---
 
+## 120B Model Evaluation (Layer 3 - Deferred Judgment)
+
+### GPT-OSS Safeguard 120B Performance
+
+Tested on same 400-prompt JailbreakHub dataset for Three-Tier Architecture validation.
+
+| Metric | 20B (Layer 2) | **120B (Layer 3)** | Improvement |
+|--------|---------------|--------------------| ------------|
+| **Precision** | 87.3% | **85.4%** | -1.9% |
+| **Recall** | 69.0% | **79.0%** | ✅ **+10.0%** |
+| **F1 Score** | 77.1% | **82.1%** | ✅ **+5.0%** |
+| **Accuracy** | 79.5% | **82.8%** | ✅ **+3.3%** |
+| **Median Latency** | 11.1s | 18.7s | +68% (acceptable for batch) |
+
+**Key Finding:** 120B caught **20 additional jailbreaks** (158 vs 138 out of 200 jailbreaks).
+
+### Three-Tier Architecture Validation
+
+The 120B results validate the proposed three-tier deferred judgment architecture:
+
+```
+Layer 1: Heuristic (0.3ms)     → Block obvious attacks instantly
+        ↓ (25% deferred)
+Layer 2: 20B Real-Time (11s)   → Fast edge-case analysis
+        ↓ (5% deferred)
+Layer 3: 120B Batch (offline)  → Catch remaining edge cases retroactively
+```
+
+**120B Use Case (Layer 3):**
+- Processes uncertain cases (5% of traffic) in batches
+- 10% better recall catches missed jailbreaks
+- Retroactive actions: user flagging, rate limiting, moderation alerts
+- 18.7s latency acceptable for 1-hour batch processing
+- vLLM batching could process 1000 prompts in ~20 minutes
+
+**Production Impact:**
+- 20B misses 62/200 jailbreaks (31%)
+- 120B misses only 42/200 jailbreaks (21%)
+- **Layer 3 would retroactively flag ~32% of what Layer 2 missed**
+
+---
+
 ## Reproducibility
 
 ### Evaluation Scripts:
 - `05_jailbreakhub_evaluation.py` - gpt-oss:20b evaluation
-- `06_jailbreakhub_safeguard_eval.py` - gpt-oss-safeguard:latest evaluation
+- `06_jailbreakhub_safeguard_eval.py` - gpt-oss-safeguard:latest (20B) evaluation
+- `07_jailbreakhub_safeguard_120b_eval.py` - gpt-oss-safeguard:120b (Layer 3) evaluation
 
 ### Results Files:
 - `jailbreakhub_400_full.txt` - gpt-oss:20b results
 - `jailbreakhub_400_safeguard.txt` - gpt-oss-safeguard:latest results
+- `120b_evaluation_results.log` - gpt-oss-safeguard:120b results (Layer 3)
 
 ### Run Evaluations:
 ```bash
@@ -181,10 +225,12 @@ pip install datasets
 # Download models
 ollama pull gpt-oss:20b
 ollama pull gpt-oss-safeguard:latest
+ollama pull gpt-oss-safeguard:120b  # For Layer 3 testing
 
-# Run evaluations (400 prompts, ~2-3 hours each)
-python 05_jailbreakhub_evaluation.py --sample-size=400
-python 06_jailbreakhub_safeguard_eval.py --sample-size=400
+# Run evaluations (400 prompts each)
+python experiments/jailbreak-evals/05_jailbreakhub_evaluation.py --sample-size=400
+python experiments/jailbreak-evals/06_jailbreakhub_safeguard_eval.py --sample-size=400
+python experiments/jailbreak-evals/07_jailbreakhub_safeguard_120b_eval.py --sample-size=400  # ~2-3 hours
 ```
 
 ---
