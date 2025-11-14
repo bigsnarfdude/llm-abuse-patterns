@@ -205,17 +205,21 @@ Evaluated on 400-prompt subset (200 jailbreaks, 200 benign):
 
 | Model | Recall | Precision | F1 Score | Output Format | Notes |
 |-------|--------|-----------|----------|---------------|-------|
-| **gpt-oss:20b (baseline)** | **74.0%** | 79.6% | 76.7% | Thinking field | Requires thinking field parsing |
+| **gpt-oss:20b (baseline)** | 74.0% | 79.6% | 76.7% | Thinking field | Requires thinking field parsing |
+| **gpt-oss:120b (baseline)** | **86.0%** 🔥 | 74.8% | **80.0%** | Thinking field | **BEST RECALL!** Needs parsing |
 | **gpt-oss-safeguard:20b** | 71.0% | 82.6% | 76.3% | Content field ✅ | Production-ready format |
-| **gpt-oss-safeguard:120b** | 77.0% | 79.0% | 78.0% | Content field ✅ | Best overall performance |
+| **gpt-oss-safeguard:120b** | 77.0% | 79.0% | 78.0% | Content field ✅ | Balanced performance |
 
-**Key Insight:** Safeguard fine-tuning doesn't significantly improve reasoning capability (baseline 74% vs safeguard 71%). The value is in **output formatting**:
+**Key Insight:** Baseline models actually OUTPERFORM safeguard models in recall! The value of safeguard fine-tuning is in **output formatting**, not detection capability:
 
-- **Baseline models**: Reason correctly in `thinking` field, but leave `content` field empty
-- **Safeguard models**: Reason correctly AND format properly in `content` field
-- **Production impact**: Safeguard models are easier to integrate (no complex thinking field parsing)
+- **Baseline models**: Superior recall (74-86%), but answer in `thinking` field (empty `content`)
+- **Safeguard models**: Lower recall (71-77%), but proper formatting in `content` field
+- **Performance gap**: 120B baseline catches 9% MORE jailbreaks than 120B safeguard (86% vs 77%)
 
-**Recommendation:** Use safeguard models for production despite 3% lower recall (20B) because proper output formatting is more valuable than marginal recall gains.
+**Recommendations:**
+- **Maximum Security**: Use baseline 120B (86% recall) with thinking field parsing - catches most jailbreaks
+- **Production Ease**: Use safeguard 120B (77% recall) - simpler integration, fewer false positives
+- **Critical Trade-off**: 9% more jailbreaks caught (18 more per 200) vs easier integration
 
 **Documentation:**
 - `experiments/jailbreak-evals/THINKING_MODEL_FIX.md` - Technical analysis of parsing bug

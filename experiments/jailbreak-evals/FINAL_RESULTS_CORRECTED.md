@@ -27,6 +27,7 @@ Scripts read both `content` AND `thinking` fields:
 |-------|--------|-----------|----------|----------------|
 | **20B Baseline (broken parsing)** | 1.0% | 100.0% | 2.0% | Content-only ❌ |
 | **20B Baseline (fixed parsing)** | 74.0% | 79.6% | 76.7% | Content + Thinking ✅ |
+| **120B Baseline (fixed parsing)** | **86.0%** | 74.8% | **80.0%** | Content + Thinking ✅ |
 | **20B Safeguard** | 71.0% | 82.6% | 76.3% | Content (proper format) ✅ |
 | **120B Safeguard** | 77.0% | 79.0% | 78.0% | Content (proper format) ✅ |
 
@@ -41,9 +42,10 @@ Scripts read both `content` AND `thinking` fields:
 
 ### 2. Baseline vs Safeguard (Apples-to-Apples)
 When both parsed correctly:
-- 20B Baseline: 74.0% recall
-- 20B Safeguard: 71.0% recall
-- **Baseline is 3% BETTER!**
+- **20B Baseline: 74.0% recall vs 20B Safeguard: 71.0% recall** → Baseline is 3% BETTER!
+- **120B Baseline: 86.0% recall vs 120B Safeguard: 77.0% recall** → Baseline is 9% BETTER!
+
+**SHOCKING FINDING:** Baseline models consistently OUTPERFORM safeguard models in recall when parsed correctly!
 
 ### 3. Safeguard Model Advantage
 Safeguard fine-tuning provides:
@@ -55,17 +57,18 @@ Safeguard fine-tuning provides:
 ### 4. Production Implications
 
 **Option A: Baseline + Thinking Fallback**
-- Pros: 74% recall (highest), already have the model
-- Cons: Requires complex parsing, less reliable, not optimized for task
+- Pros: **86% recall (120B) - HIGHEST!**, already have the model, better detection
+- Cons: Requires thinking field parsing, more complex integration
 
 **Option B: Safeguard Model**
-- Pros: 71% recall, proper formatting, production-ready, task-optimized
-- Cons: 3% lower recall, requires specific model
+- Pros: 77% recall (120B), proper formatting, production-ready, consistent responses
+- Cons: **9% lower recall**, requires specific model, misses more jailbreaks
 
-**Recommendation:** Use safeguard model for production
-- Proper formatting > 3% recall difference
-- Easier integration and maintenance
-- Purpose-built for safety tasks
+**Revised Recommendation:**
+- **Research/High-Security**: Use baseline 120B (86% recall) with thinking parsing - Best detection!
+- **Production/Ease-of-Use**: Use safeguard 120B (77% recall) - Accept 9% lower recall for simpler integration
+
+**Critical Trade-off:** 9% more jailbreaks caught (baseline) vs easier integration (safeguard)
 
 ---
 
@@ -87,11 +90,28 @@ True Negatives:  170/200 (85.0% specificity)
 False Positives: 30/200  (15.0% false alarm rate)
 ```
 
+### 120B Baseline (Fixed Parsing)
+```
+True Positives:  172/200 (86.0% recall) 🔥 BEST!
+False Negatives: 28/200  (14.0% missed)
+True Negatives:  142/200 (71.0% specificity)
+False Positives: 58/200  (29.0% false alarm rate)
+```
+
+### 120B Safeguard
+```
+True Positives:  154/200 (77.0% recall)
+False Negatives: 46/200  (23.0% missed)
+True Negatives:  158/200 (79.0% specificity)
+False Positives: 42/200  (21.0% false alarm rate)
+```
+
 **Analysis:**
-- Baseline catches 6 MORE jailbreaks (148 vs 142)
-- Safeguard has 8 FEWER false alarms (30 vs 38)
-- Baseline: higher recall, more false positives
-- Safeguard: balanced precision/recall
+- **120B Baseline catches 18 MORE jailbreaks than 120B Safeguard** (172 vs 154) - 9% better!
+- **20B Baseline catches 6 MORE jailbreaks than 20B Safeguard** (148 vs 142) - 3% better!
+- Safeguard models have better precision (fewer false positives)
+- Baseline models have superior recall (catch more real jailbreaks)
+- **Trade-off**: Baseline = best detection, Safeguard = fewer false alarms
 
 ---
 
@@ -147,7 +167,7 @@ All layers use safeguard models for consistent formatting and reliability.
 
 **Results:**
 - `experiments/jailbreak-evals/results/09_baseline_fixed_400_eval.log` - 20B baseline (74% recall)
-- `experiments/jailbreak-evals/results/120b_baseline_fixed_400_eval.log` - 120B baseline (running)
+- `experiments/jailbreak-evals/results/120b_baseline_fixed_400_eval.log` - 120B baseline (86% recall)
 
 **Scripts:**
 - `09_jailbreakhub_gptoss_20b_baseline.py` - Fixed with thinking fallback
@@ -161,12 +181,17 @@ All layers use safeguard models for consistent formatting and reliability.
 
 ## Conclusion
 
-The 1% → 74% improvement wasn't from better prompting or model capability - it was **fixing a parsing bug**.
+The 0-1% → 74-86% improvement wasn't from better prompting or model capability - it was **fixing a parsing bug**.
 
 **Key Takeaways:**
-1. Baseline models CAN detect jailbreaks (74% recall with correct parsing)
-2. Safeguard models offer proper formatting, not better reasoning
-3. For production, use safeguard models despite 3% lower recall
-4. Proper output formatting > slight recall improvements
+1. **Baseline models OUTPERFORM safeguard models in recall!**
+   - 20B: 74% vs 71% (3% better)
+   - 120B: **86% vs 77% (9% better!)**
+2. Safeguard models offer proper formatting and better precision, not better recall
+3. **For maximum security:** Use baseline 120B (86% recall) with thinking field parsing
+4. **For production ease:** Use safeguard 120B (77% recall) - simpler integration
+5. **Critical trade-off:** 9% more jailbreaks caught vs easier integration
 
-**The real value of safeguard fine-tuning:** Making models production-ready with consistent, properly-formatted responses.
+**The real value of safeguard fine-tuning:** Making models production-ready with consistent, properly-formatted responses - NOT better detection capability.
+
+**Shocking discovery:** Baseline models are BETTER at jailbreak detection than fine-tuned safeguard models!
