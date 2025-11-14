@@ -2,21 +2,41 @@
 
 ## Executive Summary
 
-We evaluated four GPT-OSS models on the JailbreakHub dataset (400 prompts: 200 jailbreaks, 200 benign) to determine the impact of specialized safety training and model size on jailbreak detection.
+We evaluated GPT-OSS models on the JailbreakHub dataset (400 prompts: 200 jailbreaks, 200 benign) to determine the impact of specialized safety training, prompting strategy, and model size on jailbreak detection.
 
-**Critical Finding: Specialized safety training provides 71x improvement** - Regular 20B baseline catches only 1% of jailbreaks, while 20B safeguard catches 71%. Training matters 12x more than model size.
+**Critical Findings:**
 
-**Updated:** November 14, 2025 with baseline model results
+1. **Prompting Strategy is Crucial (60x improvement):**
+   - Baseline model + basic prompting = 1% recall ❌
+   - Baseline model + SafeguardDetector prompting = 60% recall ✅
+   - Same model, 60x performance difference from prompting alone
+
+2. **Specialized Training Adds Further Value (18% relative improvement):**
+   - Baseline + SafeguardDetector prompting = 60% recall
+   - Safeguard + SafeguardDetector prompting = 71% recall
+   - Fine-tuning provides additional boost on top of good prompting
+
+3. **Model Size Helps (But Only With Training):**
+   - 20B safeguard → 120B safeguard = +6% recall improvement
+   - Size alone won't help baseline models (still 1% recall)
+
+**Conclusion:** Production safety systems need BOTH specialized prompting AND fine-tuned safeguard models. Baseline models with basic prompting are completely unsuitable (1% recall).
+
+**Updated:** November 14, 2025 with baseline model results and prompting analysis
 
 ---
 
 ## Models Tested
+
+**IMPORTANT CLARIFICATION (Nov 14, 2025):**
+Previous evaluations (scripts 05-06) tested models using SafeguardDetector's prompting system. New baseline evaluations (scripts 09-10) test raw models without specialized prompting. This document now separates these two evaluation approaches.
 
 ### Baseline Models (Regular, NO Safety Training)
 1. **gpt-oss:20b** - Regular 20B reasoning model
    - **Type:** Baseline (no specialized safety training)
    - **Size:** 13GB (20.9B parameters)
    - **Expected Use:** General reasoning, NOT safety-critical
+   - **Baseline Performance (Script 09):** 1.0% recall with basic prompting
 
 2. **gpt-oss:120b** - Regular 120B reasoning model
    - **Type:** Baseline (no specialized safety training)
@@ -91,13 +111,16 @@ We evaluated four GPT-OSS models on the JailbreakHub dataset (400 prompts: 200 j
 
 ### Confusion Matrix Comparison (Real-LLM)
 
-**gpt-oss:20b:**
+**IMPORTANT NOTE:** The "gpt-oss:20b" results below (60% recall) are from Script 05 which used SafeguardDetector's prompting system on the baseline model. For true baseline performance without specialized prompting, see the 20B Baseline results showing 1% recall.
+
+**gpt-oss:20b (with SafeguardDetector prompting - Script 05):**
 - True Positives: 120 (caught jailbreaks)
 - False Negatives: 80 (missed jailbreaks)
 - True Negatives: 181 (correctly safe)
 - False Positives: 19 (false alarms)
+- **Note:** This tests SafeguardDetector's prompting strategy on a baseline model, NOT a true baseline test
 
-**gpt-oss-safeguard:latest:**
+**gpt-oss-safeguard:latest (actual safeguard model):**
 - True Positives: 138 (caught jailbreaks) ✅ **+18 more**
 - False Negatives: 62 (missed jailbreaks) ✅ **-18 fewer**
 - True Negatives: 180 (correctly safe)
@@ -231,6 +254,44 @@ Layer 3: 120B Batch (offline)  → Catch remaining edge cases retroactively
 - 20B misses 62/200 jailbreaks (31%)
 - 120B misses only 42/200 jailbreaks (21%)
 - **Layer 3 would retroactively flag ~32% of what Layer 2 missed**
+
+---
+
+## Evaluation Methodology Comparison
+
+### Two Testing Approaches
+
+**Approach 1: SafeguardDetector Prompting (Scripts 05-06, Nov 4-5)**
+- Uses SafeguardDetector class with specialized safety system prompts
+- Tests both baseline models (gpt-oss:20b) and safeguard models (gpt-oss-safeguard:latest)
+- System prompt includes detailed policy rules, examples, and Harmony format
+- Results: gpt-oss:20b achieved 60% recall with this prompting approach
+
+**Approach 2: True Baseline Testing (Scripts 09-10, Nov 13-14)**
+- Uses custom GPTOSSDetector class with minimal prompting
+- Tests raw baseline models without SafeguardDetector infrastructure
+- Simple jailbreak detection prompt without elaborate policy framework
+- Results: gpt-oss:20b achieved 1% recall (true baseline performance)
+
+### Key Insight: Prompting Matters
+
+The 60% → 1% difference demonstrates that **prompting strategy has enormous impact**:
+
+1. **Same Model, Different Prompts:**
+   - gpt-oss:20b + SafeguardDetector prompting = 60% recall
+   - gpt-oss:20b + Basic prompting = 1% recall
+   - **Prompting improvement: 60x**
+
+2. **Safeguard Model Advantage:**
+   - gpt-oss-safeguard:latest = 71% recall (11% better than baseline + good prompting)
+   - This shows the safeguard model is optimized to work with safety prompting
+
+3. **True Value of Safeguard Models:**
+   - Baseline + SafeguardDetector prompting: 60% recall
+   - Safeguard + SafeguardDetector prompting: 71% recall
+   - **Fine-tuning adds 18% relative improvement** on top of good prompting
+
+**Conclusion:** You need BOTH specialized prompting AND fine-tuned models for production safety systems. Baseline models + basic prompting (1% recall) are completely unsuitable.
 
 ---
 
