@@ -199,31 +199,40 @@ After tuning heuristics for better recall (added 6 patterns, 11 keywords, adjust
 
 ### Baseline vs Safeguard Models (November 14, 2025)
 
-**CRITICAL DISCOVERY:** Baseline models achieve 74% recall when parsed correctly - only 3% lower than safeguard models!
+**CRITICAL DISCOVERIES:**
+1. Original scripts had parsing bug - baseline models put answers in `thinking` field, not `content`
+2. **Must use fixed random seed for fair comparison** - different random samples led to wrong conclusions!
 
-Evaluated on 400-prompt subset (200 jailbreaks, 200 benign):
+**Fair Comparison Results (Same 400 Prompts, Seed=42):**
 
-| Model | Recall | Precision | F1 Score | Output Format | Notes |
-|-------|--------|-----------|----------|---------------|-------|
-| **gpt-oss:20b (baseline)** | 74.0% | 79.6% | 76.7% | Thinking field | Requires thinking field parsing |
-| **gpt-oss:120b (baseline)** | **86.0%** 🔥 | 74.8% | **80.0%** | Thinking field | **BEST RECALL!** Needs parsing |
-| **gpt-oss-safeguard:20b** | 71.0% | 82.6% | 76.3% | Content field ✅ | Production-ready format |
-| **gpt-oss-safeguard:120b** | 77.0% | 79.0% | 78.0% | Content field ✅ | Balanced performance |
+| Model | Recall | Precision | F1 Score | Jailbreaks Caught | Output Format |
+|-------|--------|-----------|----------|-------------------|---------------|
+| **gpt-oss-safeguard:120b** ✅ | **71.5%** | **87.7%** | **78.8%** | 143/200 | Content field ✅ |
+| gpt-oss:120b (baseline) | 70.5% | 79.2% | 74.6% | 141/200 | Thinking field |
 
-**Key Insight:** Baseline models actually OUTPERFORM safeguard models in recall! The value of safeguard fine-tuning is in **output formatting**, not detection capability:
+**Key Finding:** When tested on IDENTICAL prompts, **safeguard OUTPERFORMS baseline on ALL metrics!**
 
-- **Baseline models**: Superior recall (74-86%), but answer in `thinking` field (empty `content`)
-- **Safeguard models**: Lower recall (71-77%), but proper formatting in `content` field
-- **Performance gap**: 120B baseline catches 9% MORE jailbreaks than 120B safeguard (86% vs 77%)
+- ✅ Safeguard catches **2 MORE jailbreaks** (143 vs 141)
+- ✅ Safeguard has **8.5% better precision** (87.7% vs 79.2%)
+- ✅ Safeguard has **4.2% better F1 score** (78.8% vs 74.6%)
+- ✅ Safeguard has proper output formatting (no complex parsing needed)
+
+**Why Previous Results Were Misleading:**
+- Previous evaluations used different random samples for each model
+- Baseline happened to get easier prompts (86% recall)
+- Safeguard happened to get harder prompts (77% recall)
+- ❌ Incorrectly concluded baseline was 9% better
+- ✅ Fair comparison (same prompts) shows safeguard is actually BETTER!
 
 **Recommendations:**
-- **Maximum Security**: Use baseline 120B (86% recall) with thinking field parsing - catches most jailbreaks
-- **Production Ease**: Use safeguard 120B (77% recall) - simpler integration, fewer false positives
-- **Critical Trade-off**: 9% more jailbreaks caught (18 more per 200) vs easier integration
+- **Production Systems**: Use safeguard models - better performance on ALL metrics
+- **Quick Experiments**: Can use baseline with thinking field parsing (70.5% recall)
+- **Clear Choice**: Safeguard wins on recall, precision, F1, AND ease of integration
 
 **Documentation:**
 - `experiments/jailbreak-evals/THINKING_MODEL_FIX.md` - Technical analysis of parsing bug
-- `experiments/jailbreak-evals/FINAL_RESULTS_CORRECTED.md` - Complete corrected results and insights
+- `experiments/jailbreak-evals/FINAL_RESULTS_CORRECTED.md` - Complete fair comparison results
+- `experiments/jailbreak-evals/11_fair_comparison_120b.py` - Fair comparison script (fixed seed=42)
 
 ## Pattern Database
 
