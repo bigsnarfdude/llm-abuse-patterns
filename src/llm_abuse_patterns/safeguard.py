@@ -227,7 +227,7 @@ Content to analyze: [INPUT]
                     # The model uses Harmony format which returns thinking + content
                     # Forcing JSON format breaks the Harmony response
                 },
-                timeout=60
+                timeout=300  # 5 minutes for large models
             )
 
             response.raise_for_status()
@@ -261,9 +261,9 @@ Content to analyze: [INPUT]
                     "messages": messages,
                     "temperature": 0  # Deterministic
                 },
-                timeout=60
+                timeout=300  # 5 minutes for large models
             )
-            
+
             response.raise_for_status()
             result_text = response.json()["choices"][0]["message"]["content"]
             
