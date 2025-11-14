@@ -186,12 +186,40 @@ After tuning heuristics for better recall (added 6 patterns, 11 keywords, adjust
 **Model:** [gpt-oss-safeguard:latest](https://ollama.com/library/gpt-oss-safeguard) - Official OpenAI release (20B parameters)
 **Hardware:** RTX 4070 Ti Super GPU (16GB VRAM) - 5.8x faster than M2 Mac
 **Dataset:** [walledai/JailbreakHub](https://huggingface.co/datasets/walledai/JailbreakHub) - Real in-the-wild jailbreaks from Reddit/Discord (2022-2023)
-**Evaluation Date:** November 11, 2025 - Fixed implementation using proper Harmony response format
+**Evaluation Date:** November 14, 2025 - Fixed Harmony format parsing for baseline and safeguard models
 **Sample Size:** 5,905 prompts (ALL 1,405 jailbreaks + 4,500 benign) - Complete jailbreak dataset
 **Details:** See `docs/JAILBREAK_EVALUATION_COMPARISON.md` for methodology and `docs/MODEL_COMPARISON.md` for model comparison
-**Evaluation Scripts:** `experiments/jailbreak-evals/05_jailbreakhub_evaluation.py`, `experiments/jailbreak-evals/06_jailbreakhub_safeguard_eval.py`
+**Evaluation Scripts:**
+- `experiments/jailbreak-evals/05_jailbreakhub_evaluation.py` - Full dataset evaluation
+- `experiments/jailbreak-evals/06_jailbreakhub_safeguard_eval.py` - Safeguard model evaluation
+- `experiments/jailbreak-evals/09_jailbreakhub_gptoss_20b_baseline.py` - 20B baseline evaluation (400 samples)
+- `experiments/jailbreak-evals/10_jailbreakhub_gptoss_120b_baseline.py` - 120B baseline evaluation (400 samples)
 
 **Note:** Previous stats were based on broken Harmony format implementation (forced JSON output causing 91% of jailbreaks to be missed). Current results use correct Harmony parsing that extracts both `content` (classification) and `thinking` (reasoning) channels from the model. These are production-ready baseline numbers using the complete JailbreakHub jailbreak dataset.
+
+### Baseline vs Safeguard Models (November 14, 2025)
+
+**CRITICAL DISCOVERY:** Baseline models achieve 74% recall when parsed correctly - only 3% lower than safeguard models!
+
+Evaluated on 400-prompt subset (200 jailbreaks, 200 benign):
+
+| Model | Recall | Precision | F1 Score | Output Format | Notes |
+|-------|--------|-----------|----------|---------------|-------|
+| **gpt-oss:20b (baseline)** | **74.0%** | 79.6% | 76.7% | Thinking field | Requires thinking field parsing |
+| **gpt-oss-safeguard:20b** | 71.0% | 82.6% | 76.3% | Content field ✅ | Production-ready format |
+| **gpt-oss-safeguard:120b** | 77.0% | 79.0% | 78.0% | Content field ✅ | Best overall performance |
+
+**Key Insight:** Safeguard fine-tuning doesn't significantly improve reasoning capability (baseline 74% vs safeguard 71%). The value is in **output formatting**:
+
+- **Baseline models**: Reason correctly in `thinking` field, but leave `content` field empty
+- **Safeguard models**: Reason correctly AND format properly in `content` field
+- **Production impact**: Safeguard models are easier to integrate (no complex thinking field parsing)
+
+**Recommendation:** Use safeguard models for production despite 3% lower recall (20B) because proper output formatting is more valuable than marginal recall gains.
+
+**Documentation:**
+- `experiments/jailbreak-evals/THINKING_MODEL_FIX.md` - Technical analysis of parsing bug
+- `experiments/jailbreak-evals/FINAL_RESULTS_CORRECTED.md` - Complete corrected results and insights
 
 ## Pattern Database
 
