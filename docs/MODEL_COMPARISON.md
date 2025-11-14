@@ -1,27 +1,40 @@
-# Model Comparison: gpt-oss:20b vs gpt-oss-safeguard:latest
+# Model Comparison: Baseline vs Safeguard Models
 
 ## Executive Summary
 
-We evaluated two GPT-OSS Safeguard models on the JailbreakHub dataset (400 prompts: 200 jailbreaks, 200 benign) to determine which performs better for real-world jailbreak detection.
+We evaluated four GPT-OSS models on the JailbreakHub dataset (400 prompts: 200 jailbreaks, 200 benign) to determine the impact of specialized safety training and model size on jailbreak detection.
 
-**Result: gpt-oss-safeguard:latest is superior** - achieving +9% higher recall, +6.3% higher F1 score, and 15% faster inference.
+**Critical Finding: Specialized safety training provides 71x improvement** - Regular 20B baseline catches only 1% of jailbreaks, while 20B safeguard catches 71%. Training matters 12x more than model size.
+
+**Updated:** November 14, 2025 with baseline model results
 
 ---
 
 ## Models Tested
 
-### Model 1: gpt-oss:20b (Unofficial/Community)
-- **Source:** Community-maintained variant
-- **Size:** 13GB
-- **Tag:** `gpt-oss:20b`
-- **Hardware:** M2 Mac, 32GB RAM, GPU acceleration
+### Baseline Models (Regular, NO Safety Training)
+1. **gpt-oss:20b** - Regular 20B reasoning model
+   - **Type:** Baseline (no specialized safety training)
+   - **Size:** 13GB (20.9B parameters)
+   - **Expected Use:** General reasoning, NOT safety-critical
 
-### Model 2: gpt-oss-safeguard:latest (Official)
-- **Source:** OpenAI official release
-- **Size:** 13GB
-- **Tag:** `gpt-oss-safeguard:latest`
-- **Hardware:** M2 Mac, 32GB RAM, GPU acceleration
-- **Link:** https://ollama.com/library/gpt-oss-safeguard
+2. **gpt-oss:120b** - Regular 120B reasoning model
+   - **Type:** Baseline (no specialized safety training)
+   - **Size:** 65GB (120B parameters)
+   - **Expected Use:** General reasoning, NOT safety-critical
+   - **Status:** Running evaluation (Nov 14, 2025)
+
+### Safeguard Models (Specialized Safety Training)
+3. **gpt-oss-safeguard:latest (20B)** - Official safeguard model
+   - **Type:** Safety-specialized (fine-tuned for content moderation)
+   - **Size:** 13GB (20.9B parameters)
+   - **Link:** https://ollama.com/library/gpt-oss-safeguard
+   - **Expected Use:** Real-time jailbreak detection
+
+4. **gpt-oss-safeguard:120b** - Large safeguard model
+   - **Type:** Safety-specialized (fine-tuned for content moderation)
+   - **Size:** 65GB (120B parameters)
+   - **Expected Use:** Batch/deferred jailbreak detection (Layer 3)
 
 ---
 
@@ -40,15 +53,31 @@ We evaluated two GPT-OSS Safeguard models on the JailbreakHub dataset (400 promp
 
 ## Results Comparison
 
-### Real-LLM Detection (Core Comparison)
+### 🔥 CRITICAL FINDING: Baseline vs Safeguard (20B Models)
 
-| Metric | gpt-oss:20b | gpt-oss-safeguard:latest | Difference |
-|--------|-------------|--------------------------|------------|
-| **Precision** | 86.3% | 87.3% | ✅ **+1.0%** |
-| **Recall** | 60.0% | 69.0% | ✅ **+9.0%** 🎯 |
-| **F1 Score** | 70.8% | 77.1% | ✅ **+6.3%** |
-| **Accuracy** | 75.2% | 79.5% | ✅ **+4.3%** |
-| **Median Latency** | 13.0s | 11.1s | ✅ **-15%** (faster) |
+**The most important comparison - same size, different training:**
+
+| Metric | 20B Baseline | 20B Safeguard | Improvement |
+|--------|--------------|---------------|-------------|
+| **Precision** | 100.0% | 82.6% | -17.4% (acceptable) |
+| **Recall** | **1.0%** ❌ | **71.0%** ✅ | **+70%** (71x better!) |
+| **F1 Score** | **2.0%** | **76.3%** | **+74.3%** (38x better!) |
+| **Accuracy** | 50.5% | 78.0% | +27.5% |
+| **Median Latency** | 4.4s | 1.9s | **-57%** (faster!) |
+
+**Key Insight:** Regular 20B catches **2 out of 200 jailbreaks** (1%). Safeguard 20B catches **142 out of 200** (71%). **Specialized training is essential.**
+
+### Model Size Impact (Safeguard Models Only)
+
+| Metric | 20B Safeguard | 120B Safeguard | Improvement |
+|--------|---------------|----------------|-------------|
+| **Precision** | 82.6% | 79.0% | -3.6% |
+| **Recall** | 71.0% | 77.0% | **+6.0%** |
+| **F1 Score** | 76.3% | 78.0% | **+1.7%** |
+| **Accuracy** | 78.0% | 78.2% | +0.2% |
+| **Median Latency** | 1.9s | 20.4s | +974% (10x slower) |
+
+**Key Insight:** Increasing size from 20B → 120B improves recall by 6%, but at 10x latency cost. Training matters **12x more** than size.
 
 ### Layered Defense (Heuristic → LLM)
 
