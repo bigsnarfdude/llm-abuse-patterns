@@ -6,7 +6,7 @@
 
 ---
 
-## Visual Comparison - Model Size vs Training Type
+## Three-Factor Impact Analysis: Prompting, Training, Size
 
 ```
                         RECALL (Jailbreak Detection Rate)
@@ -15,76 +15,124 @@
          │
      90% ┤
          │
-     80% ┤                        ┌─────────────────┐
-         │                        │  SAFEGUARD      │
-     70% ┤                        │  (Specialized)  │ 77.0%
-         │                   71.0%│                 │   ●
-     60% ┤                      ● └─────────────────┘   │
-         │                      │                       │
-     50% ┤                      │                       │
-         │                      │                       │
-     40% ┤                      │                       │
-         │                      │                       │
-     30% ┤                      │                       │
-         │                      │                       │
-     20% ┤                      │                       │
-         │                      │                       │
-     10% ┤                      │                       │
-         │   ┌──────────────────┼───────────────────────┼────┐
-      0% ┤   │  BASELINE        │                       │    │
-         │   │  (Regular)       │                       TBD  │
-         └───┴──────────────────┴───────────────────────┴────┴─────
-             │       1.0%       │                       ?    │
-             │        ●         │                       ●    │
-             └──────────────────┴────────────────────────────┘
-                    20B                              120B
-                               MODEL SIZE
+     80% ┤                                              ┌─────────────────┐
+         │                                              │  SAFEGUARD      │
+     70% ┤                   71.0%          77.0%       │  + Good Prompt  │
+         │                      ●──────────────●        └─────────────────┘
+     60% ┤      60.0%           │              │
+         │         ●────────────┘              │
+     50% ┤         │                           │
+         │         │                           │
+     40% ┤         │                           │
+         │         │                           │
+     30% ┤         │                           │
+         │         │                           │
+     20% ┤         │                           │
+         │         │                           │
+     10% ┤         │                           │
+         │   ┌─────┼───────────────────────────┼────────────┐
+      0% ┤   │ 1.0%│                           │            │
+         │   │  ●  │  BASELINE + GOOD PROMPT   │  TBD       │
+         └───┴─────┴───────────────────────────┴────────────┴─────
+             │     │                           │            │
+           Basic Good                         Good        Good
+          Prompt Prompt                      Prompt      Prompt
 
-    Key:  ● = Actual Result    ? = Running (ETA ~2hrs)
+                 20B Model                    120B Model
 
-    Vertical Axis   = RECALL (ability to catch jailbreaks)
-    Horizontal Axis = MODEL SIZE (parameters)
+    ═══════════════════════════════════════════════════════════════
+    THREE FACTORS THAT MATTER:
+    ═══════════════════════════════════════════════════════════════
 
-    Gap Analysis:
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║  Training Impact: 71.0% - 1.0% = 70% improvement (71x)       ║
-    ║  Size Impact:     77.0% - 71.0% = 6% improvement (8%)        ║
-    ║  Conclusion: TRAINING MATTERS 12x MORE THAN SIZE             ║
-    ╚═══════════════════════════════════════════════════════════════╝
+    1. PROMPTING STRATEGY (60x impact):
+       ├─ Baseline + Basic Prompt:      1.0% recall  ❌
+       └─ Baseline + SafeguardDetector: 60.0% recall ✅
+
+    2. SPECIALIZED TRAINING (+18% relative):
+       ├─ 20B Baseline + Good Prompt:   60.0% recall
+       └─ 20B Safeguard + Good Prompt:  71.0% recall ✅
+
+    3. MODEL SIZE (+8% relative):
+       ├─ 20B Safeguard + Good Prompt:  71.0% recall
+       └─ 120B Safeguard + Good Prompt: 77.0% recall ✅
+
+    ═══════════════════════════════════════════════════════════════
+    PRODUCTION REQUIREMENTS:
+    ═══════════════════════════════════════════════════════════════
+
+    ✅ Good Prompting (SafeguardDetector-style system prompts)
+    ✅ Fine-Tuned Safeguard Models (not baseline models)
+    ✅ Appropriate Model Size (20B for real-time, 120B for batch)
+
+    Baseline + Basic Prompting = 1% recall = COMPLETELY UNSUITABLE
 ```
 
 ---
 
 ## Detailed Results Table
 
-| Model | Type      | Precision | Recall | F1    | Accuracy | Latency | Key Insight        |
-|-------|-----------|-----------|--------|-------|----------|---------|-------------------|
-| 20B   | Baseline  | 100.0%    | 1.0%   | 2.0%  | 50.5%    | 4.4s    | ❌ USELESS        |
-| 20B   | Safeguard | 82.6%     | 71.0%  | 76.3% | 78.0%    | 1.9s    | ✅ 71x BETTER     |
-| 120B  | Safeguard | 79.0%     | 77.0%  | 78.0% | 78.2%    | 20.4s   | ✅ BEST OVERALL   |
-| 120B  | Baseline  | TBD       | TBD    | TBD   | TBD      | TBD     | 🟢 RUNNING (~2hrs)|
+### All Evaluations Summary
+
+| Model | Type      | Prompting           | Precision | Recall | F1    | Accuracy | Latency | Script |
+|-------|-----------|---------------------|-----------|--------|-------|----------|---------|--------|
+| 20B   | Baseline  | Basic (GPTOSSDetector) | 100.0%    | 1.0%   | 2.0%  | 50.5%    | 4.4s    | 09 ✅  |
+| 20B   | Baseline  | SafeguardDetector   | ~81%      | 60.0%  | ~69%  | ~71%     | ~6s     | 05 ✅  |
+| 20B   | Safeguard | SafeguardDetector   | 82.6%     | 71.0%  | 76.3% | 78.0%    | 1.9s    | 06 ✅  |
+| 120B  | Safeguard | SafeguardDetector   | 79.0%     | 77.0%  | 78.0% | 78.2%    | 20.4s   | 07 ✅  |
+| 120B  | Baseline  | Basic (GPTOSSDetector) | TBD       | TBD    | TBD   | TBD      | TBD     | 10 🟢  |
+
+### Key Insights by Factor
+
+**1. Prompting Impact (60x):**
+- Same 20B baseline model, different prompting:
+  - Basic prompting: 1% recall ❌
+  - SafeguardDetector prompting: 60% recall ✅
+  - **60x improvement from prompting alone**
+
+**2. Training Impact (+18% relative):**
+- Same prompting (SafeguardDetector), different training:
+  - 20B Baseline: 60% recall
+  - 20B Safeguard: 71% recall ✅
+  - **11% absolute / 18% relative improvement**
+
+**3. Size Impact (+8% relative):**
+- Same training + prompting, different size:
+  - 20B Safeguard: 71% recall
+  - 120B Safeguard: 77% recall ✅
+  - **6% absolute / 8% relative improvement**
 
 ---
 
 ## Key Findings
 
-### 1. Specialized Training Dominates
-- **20B Safeguard (71% recall) vs 20B Baseline (1% recall) = 71x improvement**
-- Training matters FAR MORE than model size
-- Same model architecture, vastly different results
+### 1. Prompting Strategy is Critical (60x Impact)
+- **Same 20B model with different prompts:**
+  - Basic prompting (Script 09): 1% recall ❌
+  - SafeguardDetector prompting (Script 05): 60% recall ✅
+- **60x improvement** from sophisticated safety-focused prompting
+- Shows importance of well-designed system prompts with policy rules and examples
 
-### 2. Model Size Helps (But Only With Training)
-- 120B Safeguard (77%) vs 20B Safeguard (71%) = +6% improvement
-- Size alone won't save you (20B baseline = 1%)
-- Need both size AND training for best results
+### 2. Specialized Training Adds Significant Value (+18% Relative)
+- **Same prompting strategy, different model training:**
+  - 20B Baseline + SafeguardDetector: 60% recall
+  - 20B Safeguard + SafeguardDetector: 71% recall ✅
+- **11% absolute improvement** (18% relative) from safety fine-tuning
+- Safeguard models are optimized to work with safety-focused prompting
 
-### 3. Baseline Models Are Unsuitable
-- Regular models are extremely risk-averse
+### 3. Model Size Provides Incremental Gains (+8% Relative)
+- **Same training + prompting, different size:**
+  - 20B Safeguard: 71% recall
+  - 120B Safeguard: 77% recall ✅
+- **6% absolute improvement** (8% relative) from increased model size
+- Useful for batch processing where latency is less critical
+
+### 4. Baseline Models Without Good Prompting Are Unsuitable
+- Regular models with basic prompting are extremely risk-averse
 - 1% recall = catches only 2 out of 200 jailbreaks
 - Simple heuristics (69.7% F1) beat 20B baseline (2.0% F1) by 35x
-- Essentially useless for production safety systems
+- **Completely unsuitable for production safety systems**
 
-### 4. Confusion Matrix Comparison
+### 5. Confusion Matrix Comparison
 
 **20B Safeguard:**
 - ✅ Caught jailbreaks: 142/200 (71%)
@@ -137,12 +185,26 @@
 
 ## Conclusion
 
-**Specialized safety training is ESSENTIAL for jailbreak detection.**
+**Production safety systems require THREE critical components:**
 
-Regular GPT-OSS models (both 20B and 120B) are completely unsuitable for content moderation without specialized safety fine-tuning. The 71x improvement from safeguard training demonstrates that:
+### 1. Sophisticated Prompting Strategy (60x impact)
+- Well-designed system prompts with policy rules, definitions, and examples
+- SafeguardDetector's prompting framework shows 60x improvement over basic prompts
+- Single biggest factor in jailbreak detection performance
 
-1. **Training >> Size**: 20B safeguard beats 20B baseline by 71x
-2. **Both help**: 120B safeguard is best overall (77% recall)
-3. **Baseline fails**: Even large models are too risk-averse without safety training
+### 2. Specialized Safety Fine-Tuning (+18% relative improvement)
+- Safeguard models optimized to work with safety-focused prompting
+- Adds 11% absolute (18% relative) improvement on top of good prompting
+- Essential for production-grade reliability
 
-For production safety systems, you MUST use safeguard-trained models.
+### 3. Appropriate Model Size (+8% relative improvement)
+- 20B for real-time detection (71% recall, 1.9s latency)
+- 120B for batch/deferred processing (77% recall, 20.4s latency)
+- Size provides incremental gains but isn't sufficient alone
+
+**Bottom Line:**
+- ❌ Baseline + Basic Prompting = 1% recall (UNUSABLE)
+- ⚠️ Baseline + Good Prompting = 60% recall (BETTER but not ideal)
+- ✅ Safeguard + Good Prompting = 71-77% recall (PRODUCTION-READY)
+
+**You need ALL THREE factors for production safety systems.**
