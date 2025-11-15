@@ -215,16 +215,17 @@ After tuning heuristics for better recall (added 6 patterns, 11 keywords, adjust
 | **gpt-oss-safeguard:latest (20b)** ✅ | **65.5%** | **87.3%** | **74.9%** | 131/200 | `/api/chat` + policy ✅ |
 | gpt-oss:20b (baseline) | 61.0% | 82.4% | 70.1% | 122/200 | `/api/chat` + policy ✅ |
 
-**120B Models (Running - Will Update):**
+**120B Models (Safeguard Wins - Confirmed):**
 | Model | Recall | Precision | F1 Score | Jailbreaks Caught | API Used |
 |-------|--------|-----------|----------|-------------------|----------|
-| gpt-oss-safeguard:120b | TBD | TBD | TBD | TBD/200 | `/api/chat` + policy ✅ |
-| gpt-oss:120b (baseline) | TBD | TBD | TBD | TBD/200 | `/api/chat` + policy ✅ |
+| **gpt-oss-safeguard:120b** ✅ | **71.5%** | **87.7%** | **78.8%** | 143/200 | `/api/chat` ✅ |
+| gpt-oss:120b (baseline) | 70.5% | 79.2% | 74.6% | 141/200 | `/api/chat` ✅ |
 
-**Key Finding:** When using the PROPER API with policy:
+**Key Findings:** When using proper `/api/chat` endpoint:
 - ✅ **20B Safeguard catches 9 MORE jailbreaks** (131 vs 122) - 4.5% better recall
-- ✅ **20B Safeguard has 4.9% better precision** (87.3% vs 82.4%)
-- ✅ **20B Safeguard has 4.8% better F1** (74.9% vs 70.1%)
+- ✅ **120B Safeguard catches 2 MORE jailbreaks** (143 vs 141) - 1.0% better recall
+- ✅ **Safeguard has better precision for both sizes** (87% vs 79-82%)
+- ✅ **Safeguard wins on ALL metrics when tested properly!**
 
 **Why Previous Results Were COMPLETELY WRONG:**
 1. ❌ Used `/api/generate` (raw completion) instead of `/api/chat` (proper API)
@@ -232,10 +233,11 @@ After tuning heuristics for better recall (added 6 patterns, 11 keywords, adjust
 3. ❌ Not how SafeguardDetector actually works!
 4. ✅ Corrected version uses same API/policy as SafeguardDetector
 
-**Recommendations (UPDATED):**
-- **20B Deployment**: Use safeguard - better on ALL metrics when using proper API!
-- **120B Deployment**: Awaiting corrected results
-- **Lesson**: Must use correct API endpoint and policy for fair comparison!
+**Recommendations (FINAL):**
+- **All Deployments**: Use safeguard models - better performance on ALL metrics!
+  - 20B: 4.5% better recall, 4.9% better precision
+  - 120B: 1.0% better recall, 8.5% better precision
+- **Lesson**: Must use correct `/api/chat` endpoint for proper evaluation!
 
 **Documentation:**
 - `experiments/jailbreak-evals/THINKING_MODEL_FIX.md` - Technical analysis of parsing bug

@@ -48,20 +48,30 @@
 - ✅ Safeguard has **4.9% better precision** (87.3% vs 82.4%)
 - ✅ Safeguard has **4.8% better F1 score** (74.9% vs 70.1%)
 
-### 120B Models - Running Corrected Evaluation
+### 120B Models - Using `/api/chat` (Script 11)
 
-**Status:** Running with proper `/api/chat` + policy (ETA: 2-3 hours)
+| Model | Recall | Precision | F1 Score | Jailbreaks Caught | API Used |
+|-------|--------|-----------|----------|-------------------|----------|
+| **120B Safeguard** ✅ | **71.5%** | **87.7%** | **78.8%** | 143/200 | `/api/chat` ✅ |
+| 120B Baseline | 70.5% | 79.2% | 74.6% | 141/200 | `/api/chat` ✅ |
 
-### What Was Wrong with Previous Comparison (Scripts 11 & 12)
+**120B Key Finding:** Safeguard OUTPERFORMS baseline:
+- ✅ Safeguard catches **2 MORE jailbreaks** (143 vs 141) - 1.0% better recall
+- ✅ Safeguard has **8.5% better precision** (87.7% vs 79.2%)
+- ✅ Safeguard has **4.2% better F1 score** (78.8% vs 74.6%)
 
-**CRITICAL FLAW:** Used wrong API endpoint!
+### What Was Wrong with Previous Comparison (Script 12)
 
-| Aspect | SafeguardDetector (Correct) | Previous Scripts 11 & 12 (Wrong) |
-|--------|----------------------------|----------------------------------|
-| **API Endpoint** | `/api/chat` ✅ | `/api/generate` ❌ |
-| **System Message** | Full policy with rules ✅ | None ❌ |
-| **User Message** | "Content to analyze: {prompt}" ✅ | Simple "JAILBREAK or SAFE" ❌ |
-| **Policy** | Detailed R1.a-R1.h rules ✅ | One-line prompt ❌ |
+**CRITICAL FLAW:** Script 12 (20B) used wrong API endpoint!
+
+**Note:** Script 11 (120B) was okay - it used `/api/chat` with simple system prompt.
+
+| Aspect | SafeguardDetector (Ideal) | Script 11/120B (Good) | Script 12/20B (BAD) |
+|--------|--------------------------|---------------------|---------------------|
+| **API Endpoint** | `/api/chat` ✅ | `/api/chat` ✅ | `/api/generate` ❌ |
+| **System Message** | Full policy with R1.a-R1.h ✅ | Simple safety prompt ⚠️ | None ❌ |
+| **User Message** | "Content to analyze: {prompt}" ✅ | "Analyze this prompt" ✅ | "JAILBREAK or SAFE" ❌ |
+| **Results** | Best practice | Acceptable | Invalid |
 
 **Impact of Using Wrong API:**
 - `/api/generate` = Raw text completion (weaker)
