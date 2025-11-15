@@ -192,8 +192,10 @@ After tuning heuristics for better recall (added 6 patterns, 11 keywords, adjust
 **Evaluation Scripts:**
 - `experiments/jailbreak-evals/05_jailbreakhub_evaluation.py` - Full dataset evaluation
 - `experiments/jailbreak-evals/06_jailbreakhub_safeguard_eval.py` - Safeguard model evaluation
-- `experiments/jailbreak-evals/09_jailbreakhub_gptoss_20b_baseline.py` - 20B baseline evaluation (400 samples)
-- `experiments/jailbreak-evals/10_jailbreakhub_gptoss_120b_baseline.py` - 120B baseline evaluation (400 samples)
+- `experiments/jailbreak-evals/09_jailbreakhub_gptoss_20b_baseline.py` - 20B baseline evaluation (400 samples, random)
+- `experiments/jailbreak-evals/10_jailbreakhub_gptoss_120b_baseline.py` - 120B baseline evaluation (400 samples, random)
+- `experiments/jailbreak-evals/11_fair_comparison_120b.py` - Fair 120B comparison (seed=42) ✅
+- `experiments/jailbreak-evals/12_fair_comparison_20b.py` - Fair 20B comparison (seed=42) ✅
 
 **Note:** Previous stats were based on broken Harmony format implementation (forced JSON output causing 91% of jailbreaks to be missed). Current results use correct Harmony parsing that extracts both `content` (classification) and `thinking` (reasoning) channels from the model. These are production-ready baseline numbers using the complete JailbreakHub jailbreak dataset.
 
@@ -235,8 +237,9 @@ Safeguard fine-tuning effectiveness depends on model size:
 
 **Documentation:**
 - `experiments/jailbreak-evals/THINKING_MODEL_FIX.md` - Technical analysis of parsing bug
-- `experiments/jailbreak-evals/FINAL_RESULTS_CORRECTED.md` - Complete fair comparison results
-- `experiments/jailbreak-evals/11_fair_comparison_120b.py` - Fair comparison script (fixed seed=42)
+- `experiments/jailbreak-evals/FINAL_RESULTS_CORRECTED.md` - Complete fair comparison results and model size insights
+- `experiments/jailbreak-evals/11_fair_comparison_120b.py` - Fair 120B comparison script (seed=42)
+- `experiments/jailbreak-evals/12_fair_comparison_20b.py` - Fair 20B comparison script (seed=42)
 
 ## Pattern Database
 

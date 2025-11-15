@@ -199,66 +199,75 @@ Safeguard fine-tuning provides:
 - Proper formatting and production-ready
 - No complex thinking field parsing needed
 
-### For Quick Experiments
-- **Can use baseline models** with thinking fallback parsing
-- Get 70.5% recall with models you already have
-- Good for understanding model capabilities
-- But safeguard is still better even for research!
+### For Quick Experiments (Model Size Dependent)
+- **20B models**: Use baseline with thinking parsing (54.5% recall) - Much better than safeguard!
+- **120B models**: Use safeguard if available (71.5% recall) - Slightly better than baseline
+- **General rule**: Larger models benefit from safeguard fine-tuning, smaller models don't
 
-### Three-Tier Architecture (VALIDATED)
+### Three-Tier Architecture (UPDATED)
 ```
 Layer 1: Heuristic (0.3ms)           → 40% blocked instantly
-Layer 2: 20B Safeguard (1.9s)        → 71.5% recall (real-time)
-Layer 3: 120B Safeguard (20.4s)      → 71.5% recall (batch/deferred)
+Layer 2: 20B Baseline (1.6s)         → 54.5% recall (real-time) - Better than 20B safeguard!
+Layer 3: 120B Safeguard (16.5s)      → 71.5% recall (batch/deferred) - Best overall
 ```
 
-All layers use safeguard models for consistent formatting and best performance.
+Architecture uses baseline for 20B (better performance) and safeguard for 120B (best performance).
 
 ---
 
 ## Files
 
-**Fair Comparison:**
-- `experiments/jailbreak-evals/results/11_fair_comparison_120b.log` - DEFINITIVE results (seed=42)
-- `11_fair_comparison_120b.py` - Fair comparison script with fixed seed
+**Fair Comparison (DEFINITIVE RESULTS):**
+- `experiments/jailbreak-evals/results/11_fair_comparison_120b.log` - 120B results (seed=42) ✅
+- `experiments/jailbreak-evals/results/12_fair_comparison_20b.log` - 20B results (seed=42) ✅
+- `11_fair_comparison_120b.py` - 120B fair comparison script
+- `12_fair_comparison_20b.py` - 20B fair comparison script
 
-**Previous Results (unfair random samples):**
+**Previous Results (unfair random samples - DO NOT USE):**
 - `experiments/jailbreak-evals/results/09_baseline_fixed_400_eval.log` - 20B baseline (74% recall, random sample)
 - `experiments/jailbreak-evals/results/120b_baseline_fixed_400_eval.log` - 120B baseline (86% recall, random sample)
 
 **Scripts:**
-- `09_jailbreakhub_gptoss_20b_baseline.py` - Fixed with thinking fallback
-- `10_jailbreakhub_gptoss_120b_baseline.py` - Fixed with thinking fallback
-- `11_fair_comparison_120b.py` - Fair apples-to-apples comparison ✅
+- `09_jailbreakhub_gptoss_20b_baseline.py` - 20B baseline with thinking fallback (random sampling)
+- `10_jailbreakhub_gptoss_120b_baseline.py` - 120B baseline with thinking fallback (random sampling)
+- `11_fair_comparison_120b.py` - 120B fair apples-to-apples comparison ✅
+- `12_fair_comparison_20b.py` - 20B fair apples-to-apples comparison ✅
 
 **Documentation:**
 - `THINKING_MODEL_FIX.md` - Technical analysis of the parsing bug
-- `FINAL_RESULTS_CORRECTED.md` - This file (corrected with fair comparison)
+- `FINAL_RESULTS_CORRECTED.md` - This file (complete fair comparison with model size insights)
 
 ---
 
 ## Conclusion
 
-**Three critical lessons:**
+**Four critical lessons:**
 
 1. **Parsing Bug (Phase 1):** Baseline models had 0-1% recall due to reading wrong field
    - Fix: Read both `content` and `thinking` fields
-   - Result: Baseline jumped to 74-86% recall
+   - Result: Baseline jumped to 54-86% recall (depending on random sample)
 
-2. **Unfair Comparison (Phase 2):** Different random samples led to wrong conclusion
-   - Problem: Claimed baseline was 9% better than safeguard
+2. **Unfair Comparison (Phase 2):** Different random samples led to wrong conclusions
+   - Problem: Claimed baseline was 9% better than safeguard for 120B
    - Reality: They were tested on different prompts!
 
-3. **Fair Comparison (Phase 3):** Fixed seed reveals the truth
-   - Same 400 prompts for both models
-   - Result: **Safeguard OUTPERFORMS baseline** (71.5% vs 70.5%)
+3. **Fair Comparison (Phase 3):** Fixed seed reveals nuanced truth
+   - Same 400 prompts for both models (seed=42)
+   - Result: **Outcome depends on model size!**
+
+4. **Model Size Matters (CRITICAL):** Safeguard fine-tuning effectiveness varies by model capacity
+   - 120B: Safeguard BETTER (71.5% vs 70.5% recall) ✅
+   - 20B: Baseline BETTER (54.5% vs 39.5% recall) ✅
 
 **Key Takeaways:**
-1. ✅ **Safeguard models are BETTER** - Higher recall, precision, and F1
-2. ✅ **Always use fixed seeds** when comparing models
-3. ✅ **Use safeguard for production** - Better performance + easier integration
-4. ❌ **Previous claim that baseline outperforms safeguard was WRONG**
+1. ✅ **Always use fixed seeds** when comparing models (critical for fair comparison)
+2. ✅ **Model size determines fine-tuning effectiveness** - Larger models benefit, smaller don't
+3. ✅ **120B deployment**: Use safeguard (better on all metrics)
+4. ✅ **20B deployment**: Use baseline with thinking parsing (15% better recall!)
+5. ❌ **Don't assume fine-tuning always helps** - Requires sufficient model capacity
 
-**The real value of safeguard fine-tuning:** Better detection capability (1% higher recall), much better precision (8.5% higher), AND production-ready formatting.
+**The real value of safeguard fine-tuning:**
+- **For 120B models**: Better detection (1% higher recall), much better precision (8.5% higher), AND production-ready formatting
+- **For 20B models**: WORSE detection (15% lower recall), slightly better precision (1.4% higher) - NOT worth the trade-off
 
-**Corrected discovery:** Safeguard models ARE better at jailbreak detection than baseline models when tested fairly!
+**Final discovery:** Safeguard fine-tuning requires large models (120B+) to be effective. For smaller models (20B), baseline performs significantly better!
