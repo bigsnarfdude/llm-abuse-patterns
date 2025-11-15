@@ -1,6 +1,7 @@
 # LLM Abuse & Safety Overwatch
 
 **An experimental research repository for detecting and analyzing LLM jailbreak patterns and abuse techniques.**
+https://cdn.openai.com/pdf/08b7dee4-8bc6-4955-a219-7793fb69090c/Technical_report__Research_Preview_of_gpt_oss_safeguard.pdf
 
 ## Overview
 
