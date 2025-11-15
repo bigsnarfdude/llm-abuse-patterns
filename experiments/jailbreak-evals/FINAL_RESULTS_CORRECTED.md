@@ -19,45 +19,69 @@
 - **120B Baseline (fixed, random sample)**: 86.0% recall
 - **Solution**: Read BOTH `content` and `thinking` fields with intelligent parsing
 
-### Phase 3: Fair Comparison (CRITICAL!)
+### Phase 3: Fair Comparison Attempt (FLAWED!)
 - **Problem**: Previous comparisons used different random samples (unfair!)
 - **Solution**: Fixed random seed (42) ensures both models see identical 400 prompts
-- **Result**: **Safeguard OUTPERFORMS baseline when tested fairly!**
+- **Result**: Got weird results - 20B baseline 54.5%, safeguard 39.5%
+- **Issue**: Used WRONG API - `/api/generate` instead of `/api/chat`!
+
+### Phase 4: API Fix (FINAL CORRECTION!)
+- **Discovery**: Comparison scripts used `/api/generate` with simple prompt
+- **Reality**: SafeguardDetector uses `/api/chat` with detailed policy
+- **Problem**: Comparing different APIs = invalid comparison!
+- **Solution**: Rewrote scripts to use proper `/api/chat` endpoint with full policy
+- **Result**: **Safeguard OUTPERFORMS baseline when using correct API!**
 
 ---
 
-## Fair Comparison Results (Same 400 Prompts, Seed=42)
+## CORRECTED Fair Comparison Results (Same 400 Prompts, Seed=42, Proper API)
 
-### 120B Models (Safeguard Wins)
+### 20B Models - Using PROPER `/api/chat` with Policy (CORRECTED)
 
-| Model | Recall | Precision | F1 Score | Jailbreaks Caught | Parsing Method |
-|-------|--------|-----------|----------|-------------------|----------------|
-| **120B Safeguard** ✅ | **71.5%** | **87.7%** | **78.8%** | 143/200 | Content field |
-| 120B Baseline | 70.5% | 79.2% | 74.6% | 141/200 | Content + Thinking fallback |
+| Model | Recall | Precision | F1 Score | Jailbreaks Caught | API Used |
+|-------|--------|-----------|----------|-------------------|----------|
+| **20B Safeguard** ✅ | **65.5%** | **87.3%** | **74.9%** | 131/200 | `/api/chat` + policy ✅ |
+| 20B Baseline | 61.0% | 82.4% | 70.1% | 122/200 | `/api/chat` + policy ✅ |
 
-**120B Key Finding:** Safeguard OUTPERFORMS baseline when tested on identical prompts:
-- ✅ Safeguard catches **2 MORE jailbreaks** (143 vs 141)
-- ✅ Safeguard has **8.5% better precision** (87.7% vs 79.2%)
-- ✅ Safeguard has **4.2% better F1 score** (78.8% vs 74.6%)
+**20B Key Finding (CORRECTED):** Safeguard OUTPERFORMS baseline when using correct API:
+- ✅ Safeguard catches **9 MORE jailbreaks** (131 vs 122) - 4.5% better recall!
+- ✅ Safeguard has **4.9% better precision** (87.3% vs 82.4%)
+- ✅ Safeguard has **4.8% better F1 score** (74.9% vs 70.1%)
 
-### 20B Models (Baseline Wins)
+### 120B Models - Running Corrected Evaluation
 
-| Model | Recall | Precision | F1 Score | Jailbreaks Caught | Parsing Method |
-|-------|--------|-----------|----------|-------------------|----------------|
-| **20B Baseline** ✅ | **54.5%** | 76.8% | **63.7%** | 109/200 | Content + Thinking fallback |
-| 20B Safeguard | 39.5% | **78.2%** | 52.5% | 79/200 | Content field |
+**Status:** Running with proper `/api/chat` + policy (ETA: 2-3 hours)
 
-**20B Key Finding:** Baseline OUTPERFORMS safeguard by a significant margin:
-- ✅ Baseline catches **30 MORE jailbreaks** (109 vs 79) - 15% better recall!
-- ❌ Safeguard has slightly better precision (78.2% vs 76.8%)
-- ✅ Baseline has **11.2% better F1 score** (63.7% vs 52.5%)
+### What Was Wrong with Previous Comparison (Scripts 11 & 12)
 
-### Critical Insight: Model Size Matters!
+**CRITICAL FLAW:** Used wrong API endpoint!
 
-**Safeguard fine-tuning effectiveness depends on model size:**
-- **120B models**: Safeguard fine-tuning improves performance (71.5% vs 70.5%)
-- **20B models**: Safeguard fine-tuning REDUCES performance (39.5% vs 54.5%)
-- **Conclusion**: Safeguard training may require larger models to be effective
+| Aspect | SafeguardDetector (Correct) | Previous Scripts 11 & 12 (Wrong) |
+|--------|----------------------------|----------------------------------|
+| **API Endpoint** | `/api/chat` ✅ | `/api/generate` ❌ |
+| **System Message** | Full policy with rules ✅ | None ❌ |
+| **User Message** | "Content to analyze: {prompt}" ✅ | Simple "JAILBREAK or SAFE" ❌ |
+| **Policy** | Detailed R1.a-R1.h rules ✅ | One-line prompt ❌ |
+
+**Impact of Using Wrong API:**
+- `/api/generate` = Raw text completion (weaker)
+- `/api/chat` = Chat completion with system context (proper)
+- Using wrong API made models perform much worse than reality!
+
+**Previous (WRONG) Results Using `/api/generate`:**
+- 20B Baseline: 54.5% recall
+- 20B Safeguard: 39.5% recall ← Nonsensical! Safeguard worse than baseline?
+
+**Corrected Results Using `/api/chat` + Policy:**
+- 20B Baseline: 61.0% recall
+- 20B Safeguard: 65.5% recall ← Makes sense! Safeguard better!
+
+### Critical Insight: API Endpoint Matters!
+
+**Using proper API changes everything:**
+- Safeguard models REQUIRE the chat API with policy to perform well
+- Using `/api/generate` handicaps safeguard models
+- Baseline models also benefit from proper API (61% vs 54.5%)
 
 ---
 

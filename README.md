@@ -205,35 +205,37 @@ After tuning heuristics for better recall (added 6 patterns, 11 keywords, adjust
 1. Original scripts had parsing bug - baseline models put answers in `thinking` field, not `content`
 2. **Must use fixed random seed for fair comparison** - different random samples led to wrong conclusions!
 
-**Fair Comparison Results (Same 400 Prompts, Seed=42):**
+**CORRECTED Fair Comparison Results (Same 400 Prompts, Seed=42, Proper API):**
 
-**120B Models (Safeguard Wins):**
-| Model | Recall | Precision | F1 Score | Jailbreaks Caught | Output Format |
-|-------|--------|-----------|----------|-------------------|---------------|
-| **gpt-oss-safeguard:120b** ✅ | **71.5%** | **87.7%** | **78.8%** | 143/200 | Content field ✅ |
-| gpt-oss:120b (baseline) | 70.5% | 79.2% | 74.6% | 141/200 | Thinking field |
+**CRITICAL FIX:** Previous comparisons used wrong API (`/api/generate` with simple prompt instead of `/api/chat` with policy)!
 
-**20B Models (Baseline Wins):**
-| Model | Recall | Precision | F1 Score | Jailbreaks Caught | Output Format |
-|-------|--------|-----------|----------|-------------------|---------------|
-| **gpt-oss:20b (baseline)** ✅ | **54.5%** | 76.8% | **63.7%** | 109/200 | Thinking field |
-| gpt-oss-safeguard:latest (20b) | 39.5% | **78.2%** | 52.5% | 79/200 | Content field ✅ |
+**20B Models (Safeguard Wins - CORRECTED):**
+| Model | Recall | Precision | F1 Score | Jailbreaks Caught | API Used |
+|-------|--------|-----------|----------|-------------------|----------|
+| **gpt-oss-safeguard:latest (20b)** ✅ | **65.5%** | **87.3%** | **74.9%** | 131/200 | `/api/chat` + policy ✅ |
+| gpt-oss:20b (baseline) | 61.0% | 82.4% | 70.1% | 122/200 | `/api/chat` + policy ✅ |
 
-**CRITICAL INSIGHT: Model Size Matters!**
+**120B Models (Running - Will Update):**
+| Model | Recall | Precision | F1 Score | Jailbreaks Caught | API Used |
+|-------|--------|-----------|----------|-------------------|----------|
+| gpt-oss-safeguard:120b | TBD | TBD | TBD | TBD/200 | `/api/chat` + policy ✅ |
+| gpt-oss:120b (baseline) | TBD | TBD | TBD | TBD/200 | `/api/chat` + policy ✅ |
 
-Safeguard fine-tuning effectiveness depends on model size:
-- **120B**: Safeguard BETTER (71.5% vs 70.5% recall) - Fine-tuning helps! ✅
-- **20B**: Baseline BETTER (54.5% vs 39.5% recall) - Fine-tuning hurts! ❌
+**Key Finding:** When using the PROPER API with policy:
+- ✅ **20B Safeguard catches 9 MORE jailbreaks** (131 vs 122) - 4.5% better recall
+- ✅ **20B Safeguard has 4.9% better precision** (87.3% vs 82.4%)
+- ✅ **20B Safeguard has 4.8% better F1** (74.9% vs 70.1%)
 
-**Why Previous Results Were Misleading:**
-- Previous evaluations used different random samples (unfair comparison)
-- ❌ Incorrectly concluded baseline was 9% better for 120B
-- ✅ Fair comparison (same prompts, seed=42) reveals nuanced truth
+**Why Previous Results Were COMPLETELY WRONG:**
+1. ❌ Used `/api/generate` (raw completion) instead of `/api/chat` (proper API)
+2. ❌ Used simple "JAILBREAK or SAFE" prompt instead of detailed policy
+3. ❌ Not how SafeguardDetector actually works!
+4. ✅ Corrected version uses same API/policy as SafeguardDetector
 
-**Recommendations:**
-- **120B Deployment**: Use safeguard - better on ALL metrics
-- **20B Deployment**: Use baseline with thinking parsing - catches 30 MORE jailbreaks!
-- **Lesson**: Safeguard fine-tuning requires sufficient model capacity to be effective
+**Recommendations (UPDATED):**
+- **20B Deployment**: Use safeguard - better on ALL metrics when using proper API!
+- **120B Deployment**: Awaiting corrected results
+- **Lesson**: Must use correct API endpoint and policy for fair comparison!
 
 **Documentation:**
 - `experiments/jailbreak-evals/THINKING_MODEL_FIX.md` - Technical analysis of parsing bug
