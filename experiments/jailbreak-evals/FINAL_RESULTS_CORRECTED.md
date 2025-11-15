@@ -28,15 +28,36 @@
 
 ## Fair Comparison Results (Same 400 Prompts, Seed=42)
 
+### 120B Models (Safeguard Wins)
+
 | Model | Recall | Precision | F1 Score | Jailbreaks Caught | Parsing Method |
 |-------|--------|-----------|----------|-------------------|----------------|
-| **120B Safeguard** | **71.5%** ✅ | **87.7%** ✅ | **78.8%** ✅ | 143/200 | Content field |
+| **120B Safeguard** ✅ | **71.5%** | **87.7%** | **78.8%** | 143/200 | Content field |
 | 120B Baseline | 70.5% | 79.2% | 74.6% | 141/200 | Content + Thinking fallback |
 
-**Key Finding:** When tested on IDENTICAL prompts:
+**120B Key Finding:** Safeguard OUTPERFORMS baseline when tested on identical prompts:
 - ✅ Safeguard catches **2 MORE jailbreaks** (143 vs 141)
 - ✅ Safeguard has **8.5% better precision** (87.7% vs 79.2%)
 - ✅ Safeguard has **4.2% better F1 score** (78.8% vs 74.6%)
+
+### 20B Models (Baseline Wins)
+
+| Model | Recall | Precision | F1 Score | Jailbreaks Caught | Parsing Method |
+|-------|--------|-----------|----------|-------------------|----------------|
+| **20B Baseline** ✅ | **54.5%** | 76.8% | **63.7%** | 109/200 | Content + Thinking fallback |
+| 20B Safeguard | 39.5% | **78.2%** | 52.5% | 79/200 | Content field |
+
+**20B Key Finding:** Baseline OUTPERFORMS safeguard by a significant margin:
+- ✅ Baseline catches **30 MORE jailbreaks** (109 vs 79) - 15% better recall!
+- ❌ Safeguard has slightly better precision (78.2% vs 76.8%)
+- ✅ Baseline has **11.2% better F1 score** (63.7% vs 52.5%)
+
+### Critical Insight: Model Size Matters!
+
+**Safeguard fine-tuning effectiveness depends on model size:**
+- **120B models**: Safeguard fine-tuning improves performance (71.5% vs 70.5%)
+- **20B models**: Safeguard fine-tuning REDUCES performance (39.5% vs 54.5%)
+- **Conclusion**: Safeguard training may require larger models to be effective
 
 ---
 
@@ -70,33 +91,47 @@
 **Reality:** Baseline models CAN detect jailbreaks (70.5% recall with correct parsing)
 **Issue:** They don't format output properly - answer is in thinking field, not content
 
-### 2. Safeguard Models ARE Better (When Tested Fairly)
-**When tested on identical prompts:**
+### 2. Safeguard Fine-Tuning Effectiveness Depends on Model Size
+**120B models (safeguard wins):**
 - Safeguard: 71.5% recall, 87.7% precision, 78.8% F1
 - Baseline: 70.5% recall, 79.2% precision, 74.6% F1
-- **Safeguard wins on ALL metrics!**
+- **Safeguard is 1% better on recall, 8.5% better on precision**
 
-### 3. Safeguard Model Advantages
-Safeguard fine-tuning provides:
+**20B models (baseline wins):**
+- Baseline: 54.5% recall, 76.8% precision, 63.7% F1
+- Safeguard: 39.5% recall, 78.2% precision, 52.5% F1
+- **Baseline is 15% better on recall, 11.2% better on F1!**
+
+### 3. Model Size & Fine-Tuning Trade-offs
+
+**120B Safeguard Advantages:**
 - ✅ **Better recall** (71.5% vs 70.5%) - catches MORE jailbreaks
 - ✅ **Better precision** (87.7% vs 79.2%) - fewer false alarms
-- ✅ **Better F1 score** (78.8% vs 74.6%) - better overall performance
-- ✅ **Proper output formatting** (answer in content field)
-- ✅ **Production-ready** (no complex thinking field parsing)
+- ✅ **Better F1 score** (78.8% vs 74.6%) - best overall performance
+- ✅ **Proper output formatting** - production-ready
+
+**20B Baseline Advantages:**
+- ✅ **Much better recall** (54.5% vs 39.5%) - catches 30 MORE jailbreaks!
+- ✅ **Better F1 score** (63.7% vs 52.5%) - better overall performance
+- ✅ **Simpler model** - no specialized fine-tuning needed
+- ❌ Requires thinking field parsing
 
 ### 4. Production Implications
 
-**Safeguard Model (RECOMMENDED)**
-- Pros: 71.5% recall, 87.7% precision, proper formatting, production-ready
-- Cons: Requires specific model (gpt-oss-safeguard)
-- **Best for:** Production systems prioritizing reliability and performance
+**For 120B Deployment (RECOMMENDED FOR LARGE MODELS):**
+- **Use safeguard 120B** - Better on ALL metrics (71.5% recall, 87.7% precision)
+- Proper formatting, production-ready, best performance
+- Clear winner for large model deployments
 
-**Baseline + Thinking Fallback**
-- Pros: 70.5% recall, already have the model
-- Cons: Lower recall, lower precision, requires complex parsing
-- **Best for:** Quick experiments when safeguard model isn't available
+**For 20B Deployment (BASELINE RECOMMENDED FOR SMALL MODELS):**
+- **Use baseline 20B with thinking parsing** - Much better recall (54.5% vs 39.5%)
+- Catches 30 MORE jailbreaks per 200 prompts
+- Safeguard fine-tuning actually HURTS performance on smaller models!
 
-**CLEAR RECOMMENDATION:** Use safeguard models for ALL production use cases!
+**NUANCED RECOMMENDATION:**
+- **120B**: Use safeguard (fine-tuning helps)
+- **20B**: Use baseline (fine-tuning hurts!)
+- **Lesson**: Safeguard fine-tuning requires sufficient model capacity to be effective
 
 ---
 

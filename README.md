@@ -205,29 +205,33 @@ After tuning heuristics for better recall (added 6 patterns, 11 keywords, adjust
 
 **Fair Comparison Results (Same 400 Prompts, Seed=42):**
 
+**120B Models (Safeguard Wins):**
 | Model | Recall | Precision | F1 Score | Jailbreaks Caught | Output Format |
 |-------|--------|-----------|----------|-------------------|---------------|
 | **gpt-oss-safeguard:120b** ✅ | **71.5%** | **87.7%** | **78.8%** | 143/200 | Content field ✅ |
 | gpt-oss:120b (baseline) | 70.5% | 79.2% | 74.6% | 141/200 | Thinking field |
 
-**Key Finding:** When tested on IDENTICAL prompts, **safeguard OUTPERFORMS baseline on ALL metrics!**
+**20B Models (Baseline Wins):**
+| Model | Recall | Precision | F1 Score | Jailbreaks Caught | Output Format |
+|-------|--------|-----------|----------|-------------------|---------------|
+| **gpt-oss:20b (baseline)** ✅ | **54.5%** | 76.8% | **63.7%** | 109/200 | Thinking field |
+| gpt-oss-safeguard:latest (20b) | 39.5% | **78.2%** | 52.5% | 79/200 | Content field ✅ |
 
-- ✅ Safeguard catches **2 MORE jailbreaks** (143 vs 141)
-- ✅ Safeguard has **8.5% better precision** (87.7% vs 79.2%)
-- ✅ Safeguard has **4.2% better F1 score** (78.8% vs 74.6%)
-- ✅ Safeguard has proper output formatting (no complex parsing needed)
+**CRITICAL INSIGHT: Model Size Matters!**
+
+Safeguard fine-tuning effectiveness depends on model size:
+- **120B**: Safeguard BETTER (71.5% vs 70.5% recall) - Fine-tuning helps! ✅
+- **20B**: Baseline BETTER (54.5% vs 39.5% recall) - Fine-tuning hurts! ❌
 
 **Why Previous Results Were Misleading:**
-- Previous evaluations used different random samples for each model
-- Baseline happened to get easier prompts (86% recall)
-- Safeguard happened to get harder prompts (77% recall)
-- ❌ Incorrectly concluded baseline was 9% better
-- ✅ Fair comparison (same prompts) shows safeguard is actually BETTER!
+- Previous evaluations used different random samples (unfair comparison)
+- ❌ Incorrectly concluded baseline was 9% better for 120B
+- ✅ Fair comparison (same prompts, seed=42) reveals nuanced truth
 
 **Recommendations:**
-- **Production Systems**: Use safeguard models - better performance on ALL metrics
-- **Quick Experiments**: Can use baseline with thinking field parsing (70.5% recall)
-- **Clear Choice**: Safeguard wins on recall, precision, F1, AND ease of integration
+- **120B Deployment**: Use safeguard - better on ALL metrics
+- **20B Deployment**: Use baseline with thinking parsing - catches 30 MORE jailbreaks!
+- **Lesson**: Safeguard fine-tuning requires sufficient model capacity to be effective
 
 **Documentation:**
 - `experiments/jailbreak-evals/THINKING_MODEL_FIX.md` - Technical analysis of parsing bug
